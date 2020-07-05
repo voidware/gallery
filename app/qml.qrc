@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>Tile.qml</file>
+        <file>ImageView.qml</file>
+        <file>Swiper.qml</file>
+        <file>Gallery.qml</file>
+        <file>Props.qml</file>
+        <file>PropLabel.qml</file>
+        <file>PropInput.qml</file>
+    </qresource>
+</RCC>

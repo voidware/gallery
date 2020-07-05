@@ -1,0 +1,7 @@
+Makefile*
+object_script.*
+debug
+release
+*.user
+*.user.*
+
