@@ -40,7 +40,7 @@
 
 #define TAG_MODEL "gmodel, "
 
-class GalleryModel : public QAbstractListModel
+class GalleryModel : public QAbstractListModel, public FSITraits
 {
     Q_OBJECT
 
@@ -183,8 +183,10 @@ public:
         
         for (int i = 0; i < (int)_names.size(); ++i)
         {
-            assert(_names[i].size());
-            int ci = u_tolower(_names[i][0]);
+            const string& fi = _names[i];
+            assert(fi.size());
+            if (isHexFile(fi) > 0) continue; // ignore files deemed hex
+            int ci = u_tolower(fi[0]);
             if (ci == c) return i;
         }
         

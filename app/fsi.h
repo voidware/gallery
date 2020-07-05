@@ -31,8 +31,101 @@
 #include <vector>
 #include "logged.h"
 #include "qdefs.h"
+#include "cutils.h"
+#include "strutils.h"
 
 #define TAG_FSI  "FSI, "
+
+struct FSITraits
+{
+    enum ImgType
+    {
+        img_void,
+        img_jpg,
+        img_png,
+        img_webp,
+    };
+
+    struct SuffType
+    {
+        const char* _suff;
+        ImgType     _type;
+    };
+    
+    static int isImageSuffix(const char* s)
+    {
+        static const SuffType sufTab[] =
+            {
+                { ".jpg", img_jpg },
+                { ".jpeg", img_jpg },
+                { ".png", img_png },
+                { ".apng", img_png },
+                { ".webp", img_webp },
+            };
+
+        for (int i = 0; i < ASIZE(sufTab); ++i)
+            if (equalsIgnoreCase(s, sufTab[i]._suff))
+                return sufTab[i]._type;
+        
+        return 0;
+    }
+
+    static bool isImageFile(const std::string& s)
+    {
+        std::string suf = suffixOf(s);
+        return isImageSuffix(suf.c_str()) != 0;
+    }
+
+    static bool isJPG(const std::string& s)
+    {
+        return isImageSuffix(suffixOf(s).c_str()) == img_jpg;
+    }
+
+    static bool isWEBP(const std::string& s)
+    {
+        return isImageSuffix(suffixOf(s).c_str()) == img_webp;
+    }
+
+    static int isHexFile(const std::string& s, int i = 0)
+    {
+        // is the filename a hex number
+        // eg a409482348208f.jpg
+        // return position of end of hex or -1 if not hex
+        // note: short names are not considered hex
+        // eg bee.jpg
+
+        int r = -1; // not hex
+        int l = s.length();
+        const char* p = s.c_str();
+        
+        while (i < l && u_ishex(p[i])) ++i;
+        
+        // check to see if this is the end of filename, otherwise fail
+        // allow end of string or (eg) ".jpg" suffix
+        if (i < l)
+        {
+            if (p[i] == '.' && isImageSuffix(p + i)) r = i;
+        }
+        else
+        {
+            // end of string, ok
+            r = i;
+        }
+
+        // disregard short files as hex
+        // eg min of 6 chars
+        if (r < 6)
+        {
+            r = -1;
+        }
+
+        //if (r >= 0) LOG3(TAG_FSI, "### hex file " << s);
+
+        return r;
+    }
+
+};
+
 
 struct FSI
 {
