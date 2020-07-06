@@ -25,42 +25,62 @@
  */
 
 import QtQuick 2.12
-import QtQuick.Controls 2.5
+import QtQuick.Controls 2.13
 import QtQml 2.12
 
 import com.voidware.myapp 1.0
 
 Item
 {
+    id: swiper
     property alias startindex: swipe.currentIndex
     property var theitem;
     
     focus:true
 
-    SwipeView
+    SplitView
     {
-        id: swipe
         anchors.fill: parent
-        interactive: theitem ? !theitem.zoomed: true
-
-        Repeater
+        orientation: Qt.Vertical
+        
+        SwipeView
         {
-            model: gModel
-            Loader 
-            {
-                //active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
-                property string label: model.label
-                active: SwipeView.isCurrentItem 
-                sourceComponent: ImageView
-                {
-                    // model "name" calls the provider
-                    name: model.name
-                    label: model.label
-                }
+            id: swipe
+            SplitView.fillHeight: true
+            interactive: theitem ? !theitem.zoomed: true
 
-                onLoaded: theitem = item
+            Repeater
+            {
+                model: gModel
+                Loader 
+                {
+                    //active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
+                    property string label: model.label
+                    active: SwipeView.isCurrentItem 
+                    sourceComponent: ImageView
+                    {
+                        // model "name" calls the provider
+                        name: model.name
+                        label: model.label
+                    }
+
+                    onLoaded: theitem = item
+                }
             }
         }
+
+        Controlbox 
+        {
+            id: controlbox
+            SplitView.maximumHeight: swiper.height/4
+        }
+    }
+
+    Binding
+    {
+        target: theitem
+        property: 'gamma'
+        value: controlbox.gamma
     }
 
     Binding
@@ -68,6 +88,13 @@ Item
         target: app
         property: 'title'
         value: theitem.info
+    }
+
+    Binding
+    {
+        target: app
+        property: 'drawerActive'
+        value: controlbox.height == 0
     }
 
     Keys.onPressed:
@@ -81,27 +108,10 @@ Item
         {
             if (theitem) 
             {
-                theitem.hqpic.grabToImage(function(res) {
+                theitem.theimage.grabToImage(function(res) {
                     app.sendEmail(res.image, theitem.label);
                 });
             }
         }
     }
-
-    MouseArea
-    {
-        anchors.fill: parent
-        acceptedButtons: Qt.RightButton
-        onClicked: app.pop(); // if (mouse.button == Qt.RightButton) 
-    }
-
-    Drawer
-    {
-        id: drawer
-        width: parent.width
-        height: 0.33 * app.width
-        edge: Qt.BottomEdge
-        dragMargin: 32
-    }
-    
 }

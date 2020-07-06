@@ -8,5 +8,6 @@
         <file>Props.qml</file>
         <file>PropLabel.qml</file>
         <file>PropInput.qml</file>
+        <file>Controlbox.qml</file>
     </qresource>
 </RCC>

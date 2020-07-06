@@ -26,6 +26,7 @@
 
 import QtQuick 2.12
 import QtQuick.Controls 2.5
+import QtGraphicalEffects 1.13
 
 import com.voidware.myapp 1.0
 
@@ -35,6 +36,8 @@ Rectangle
     property string name
     property string label
     property double sc: 1.0
+    property alias gamma: setgamma.gamma
+    property alias theimage: setgamma
 
     property bool pinching: false
     property bool zoomed: false
@@ -116,6 +119,7 @@ Rectangle
             width: pw
             height: ph
             anchors.centerIn: parent
+            visible: false
 
             Image
             {
@@ -163,96 +167,107 @@ Rectangle
             }
             */
 
-            PinchArea
-            {
-                id: apinch
-                anchors.fill: frame
-                pinch.target: frame
-                pinch.minimumRotation: 0
-                pinch.maximumRotation: 0
-                pinch.minimumScale: 0.1
-                pinch.maximumScale: 10
-                //pinch.dragAxis: Pinch.NoDrag
-                pinch.dragAxis: Pinch.XAndYAxis
-                
-                onPinchStarted: pinching = true
+            
+        }
 
-                onPinchFinished:
+        GammaAdjust 
+        {
+            id: setgamma
+            anchors.fill: frame
+            source: frame
+            gamma: gamma
+            visible: !pinching
+        }
+
+        PinchArea
+        {
+            id: apinch
+            anchors.fill: frame
+            pinch.target: frame
+            pinch.minimumRotation: 0
+            pinch.maximumRotation: 0
+            pinch.minimumScale: 0.1
+            pinch.maximumScale: 10
+            //pinch.dragAxis: Pinch.NoDrag
+            pinch.dragAxis: Pinch.XAndYAxis
+            
+            onPinchStarted: pinching = true
+
+            onPinchFinished:
+            {
+                console.log("pinch scale ", pinch.scale, sc*pinch.scale);
+                frame.scale = 1.0;
+                setscale(sc*pinch.scale);
+                pinching = false
+            }
+
+            /*
+            onSmartZoom:
+            {
+                if (pinch.scale > 0) 
                 {
-                    console.log("pinch scale ", pinch.scale, sc*pinch.scale);
-                    frame.scale = 1.0;
-                    setscale(sc*pinch.scale);
-                    pinching = false
+                    frame.rotation = 0;
+                    setscale(Math.min(root.width, root.height) / Math.max(pic.sourceSize.width, pic.sourceSize.height) * 0.85);
+                } else {
+                    frame.rotation = pinch.previousAngle
+                    setscale(pinch.previousScale);
+                }
+            }
+            */
+
+            MouseArea 
+            {
+                id: dragArea
+                anchors.fill: parent
+                drag.target: dragEnable ? frame : undefined
+                drag.minimumX: Math.min(dw, 0)
+                drag.minimumY: Math.min(dh, 0)
+                drag.maximumX: Math.max(dw, 0)
+                drag.maximumY: Math.max(dh, 0)
+
+                scrollGestureEnabled: false  // 2-finger-flick gesture should pass through to the Flickable
+
+                onDoubleClicked: app.pop()
+
+                property bool dragEnable: false
+
+                // break bindings so we can drag
+                onPressed:
+                {
+                    if (zoomed)
+                    {
+                        frame.anchors.centerIn = undefined
+                        dragEnable = true
+                    }
                 }
 
                 /*
-                onSmartZoom:
+                onPressAndHold:
                 {
-                    if (pinch.scale > 0) 
-                    {
-                        frame.rotation = 0;
-                        setscale(Math.min(root.width, root.height) / Math.max(pic.sourceSize.width, pic.sourceSize.height) * 0.85);
-                    } else {
-                        frame.rotation = pinch.previousAngle
-                        setscale(pinch.previousScale);
-                    }
+                    console.log("press hold")
+                    dragEnable = true
                 }
                 */
 
-                MouseArea 
+                /*
+                //onClicked:
+                onDoubleClicked:
                 {
-                    id: dragArea
-                    anchors.fill: parent
-                    drag.target: dragEnable ? frame : undefined
-                    drag.minimumX: Math.min(dw, 0)
-                    drag.minimumY: Math.min(dh, 0)
-                    drag.maximumX: Math.max(dw, 0)
-                    drag.maximumY: Math.max(dh, 0)
+                    dragEnable = false
+                    reset()
+                }
+                */
 
-                    scrollGestureEnabled: false  // 2-finger-flick gesture should pass through to the Flickable
-
-                    onDoubleClicked: app.pop()
-
-                    property bool dragEnable: false
-
-                    // break bindings so we can drag
-                    onPressed:
+                onWheel: 
+                {
+                    if (wheel.modifiers & Qt.ControlModifier)
                     {
-                        if (zoomed)
-                        {
-                            frame.anchors.centerIn = undefined
-                            dragEnable = true
-                        }
-                    }
-
-                    /*
-                    onPressAndHold:
-                    {
-                        console.log("press hold")
-                        dragEnable = true
-                    }
-                    */
-
-                    /*
-                    //onClicked:
-                    onDoubleClicked:
-                    {
-                        dragEnable = false
-                        reset()
-                    }
-                    */
-
-                    onWheel: 
-                    {
-                        if (wheel.modifiers & Qt.ControlModifier)
-                        {
-                            frame.rotation += wheel.angleDelta.y / 120 * 5;
-                            if (Math.abs(frame.rotation) < 4) frame.rotation = 0;
-                        } else {
-                            frame.rotation += wheel.angleDelta.x / 120;
-                            if (Math.abs(frame.rotation) < 0.6) frame.rotation = 0;
-                            setscale(sc * (1 + wheel.angleDelta.y / 120 / 10));
-                        }
+                        frame.rotation += wheel.angleDelta.y / 120 * 5;
+                        if (Math.abs(frame.rotation) < 4) frame.rotation = 0;
+                    } else {
+                        frame.rotation += wheel.angleDelta.x / 120;
+                        if (Math.abs(frame.rotation) < 0.6) frame.rotation = 0;
+                        setscale(sc * (1 + wheel.angleDelta.y / 120 / 10));
                     }
                 }
             }

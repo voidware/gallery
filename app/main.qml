@@ -44,6 +44,7 @@ ApplicationWindow
     
     property string directory: settings.startfolder 
     property color bgCol: "#f0f0f0"
+    property bool drawerActive: true
 
     //onDirectoryChanged: console.log("## Directory ", directory);
 
@@ -117,6 +118,7 @@ ApplicationWindow
         width: 0.66 * app.width
         height: app.height
         dragMargin: 32
+        interactive: drawerActive
 
         Props
         {
