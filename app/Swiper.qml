@@ -85,6 +85,13 @@ Item
 
     Binding
     {
+        target: theitem
+        property: 'sharpen'
+        value: controlbox.sharpen
+    }
+
+    Binding
+    {
         target: app
         property: 'title'
         value: theitem.info

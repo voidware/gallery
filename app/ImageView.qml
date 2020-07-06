@@ -24,7 +24,7 @@
  * contact@voidware.com
  */
 
-import QtQuick 2.12
+import QtQuick 2.13
 import QtQuick.Controls 2.5
 import QtGraphicalEffects 1.13
 
@@ -37,7 +37,10 @@ Rectangle
     property string label
     property double sc: 1.0
     property alias gamma: setgamma.gamma
-    property alias theimage: setgamma
+    property alias sharpen: sharpen.coeff_blur
+
+    // used for grabbing final result
+    property var theimage: fillsCanvas ? canvas : sharpen
 
     property bool pinching: false
     property bool zoomed: false
@@ -54,6 +57,7 @@ Rectangle
     property int dh : canvas.height - ph
     property double allscale: pw/pic.sourceSize.width
     property alias hqpic: hqpic
+    property bool fillsCanvas: dw < 0 || dh < 0
 
     property string info: label + ' ' + pic.sourceSize.width + 'x' + pic.sourceSize.height + ' ' + (allscale*100).toFixed(1) + '%'
 
@@ -176,7 +180,21 @@ Rectangle
             anchors.fill: frame
             source: frame
             gamma: gamma
-            visible: !pinching
+
+            // so we can apply shader
+            layer.enabled: true
+            visible: false // !pinching
+        }
+
+        ShaderEffect 
+        {
+            id: sharpen
+            anchors.fill: setgamma
+            property variant src: setgamma
+            property double imgWidth: width
+            property double imgHeight: height
+            property double coeff_blur: 0
+            fragmentShader: "qrc:/unsharp.glsl"
         }
 
         PinchArea

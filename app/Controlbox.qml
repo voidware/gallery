@@ -33,10 +33,9 @@ import com.voidware.myapp 1.0
 
 Rectangle
 {
-    //id: controlbox
-    //SplitView.maximumHeight: swiper.height/4
     implicitHeight: 0
     property alias gamma: gammaslider.value
+    property alias sharpen: sharpslider.value
 
     Item
     {
@@ -91,17 +90,15 @@ Rectangle
                 background: Rectangle { border.color: "red" }
                 font.pointSize: 18
                 padding: 4
-                text: "fishness"
+                text: "Sharpen"
             }
             Slider
             {
-                id: s2
+                id: sharpslider
                 from: 0
-                to: 100
-                stepSize: 1
+                to: 2.0
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                //width: parent.width
             }
             Label
             {
@@ -111,7 +108,7 @@ Rectangle
                 background: Rectangle { border.color: "black" }
                 font.pointSize: 18
                 padding: 4
-                text: s2.value
+                text: sharpslider.value.toFixed(2);
             }
         }
     }
