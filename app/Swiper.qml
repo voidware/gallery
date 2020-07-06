@@ -120,5 +120,14 @@ Item
                 });
             }
         }
+        else if (event.key == Qt.Key_F2) 
+        {
+            if (theitem) 
+            {
+                theitem.theimage.grabToImage(function(res) {
+                    app.saveForEmail(res.image);
+                });
+            }
+        }
     }
 }

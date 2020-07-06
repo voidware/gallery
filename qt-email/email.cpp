@@ -13,8 +13,11 @@
 #include <QVariant>
 #include <QImageWriter>
 #include <QImage>
+#include <QClipboard>
+#include <QGuiApplication>
 #include <QDebug>
 
+#include <assert.h>
 #include "mimetypemanager.h"
 
 #define URI "Email"
@@ -49,6 +52,7 @@ void Email::open(const QVariant& imgvar)
         {
             fname = f.fileName();
             QImageWriter iw(fname);
+            iw.setQuality(85);  // jpeg
             bool v = iw.write(img);
             if (v)
             {
@@ -164,4 +168,48 @@ void Email::open(const QVariant& imgvar)
     //printf("#### email url '%s'\n", tmpFilePath.toStdString().c_str());
 
     emit composerOpened(QDesktopServices::openUrl(QUrl(tmpFilePath)));
+}
+
+QString Email::save(const QVariant& imgvar)
+{
+    QString fname;
+    QImage img;
+    QTemporaryFile f("XXXXXX.jpg");
+        
+    if (imgvar.isValid()) img = imgvar.value<QImage>();
+    
+    if (!img.isNull())
+    {
+        if (f.open())
+        {
+            fname = f.fileName();
+            QImageWriter iw(fname);
+            iw.setQuality(85);  // jpeg
+            bool v = iw.write(img);
+            if (v)
+            {
+                f.setAutoRemove(false); // leave file there
+                qDebug () << "wrote image to " << fname;
+                
+                QClipboard *clipboard = QGuiApplication::clipboard();
+                assert(clipboard);
+
+                // make markdown reference to image
+                QString s = "![](file://";
+                s += fname;
+                s += ")";
+                clipboard->setText(s);
+            }
+            else
+            {
+                qDebug() << "error writing to temp file " << fname;
+                fname.clear();
+            }
+        }
+        else
+        {
+            qDebug() << "unable to open temp file";
+        }
+    }
+    return fname;
 }

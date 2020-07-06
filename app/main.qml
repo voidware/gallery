@@ -72,6 +72,7 @@ ApplicationWindow
     {
         pagestack.pop()
         title = directory
+        drawerActive = true
     }
     
     function sendEmail(img, label)
@@ -81,6 +82,11 @@ ApplicationWindow
         if (settings.subject) email.subject = settings.subject
         if (settings.bcc) email.bcc = settings.bcc
         email.open(img);
+    }
+
+    function saveForEmail(img)
+    {
+        email.save(img);
     }
 
     StackView

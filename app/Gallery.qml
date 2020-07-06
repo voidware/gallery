@@ -32,11 +32,21 @@ import com.voidware.myapp 1.0
 FocusScope
 {
     id: gallery
+
+    function setGridPos(p)
+    {
+        if (p >= 0 && p < grid.count)
+        {
+            grid.positionViewAtIndex(p, GridView.Center);
+            grid.currentIndex = p;
+        }
+    }
+
     Column
     {
         width: parent.width
         
-        TextInput
+        TextField
         {
             id: textin
             width: parent.width
@@ -45,6 +55,7 @@ FocusScope
             bottomPadding: 4
 
             inputMethodHints: Qt.ImhUrlCharactersOnly 
+            placeholderText: "enter directory"
 
             onAccepted:
             {
@@ -93,14 +104,27 @@ FocusScope
                 var c = gModel.indexOfKey(event.key)
                 if (c >= 0) 
                 {
-                    grid.positionViewAtIndex(c, GridView.Center);
-                    grid.currentIndex = c;
+                    setGridPos(c);
                 }
                 else
                 {
-                    if (event.key == Qt.Key_PageDown) grid.positionViewAtEnd();
-                    if (event.key == Qt.Key_PageUp)  grid.positionViewAtBeginning();
+                    if (event.key == Qt.Key_Home)  grid.positionViewAtBeginning();
+                    if (event.key == Qt.Key_End) grid.positionViewAtEnd();
+                    
                     if (event.key == Qt.Key_Return) app.view(grid.currentIndex);
+
+                    if (event.key == Qt.Key_PageDown)
+                    {
+                        var cols = Math.floor(grid.width/grid.cellWidth)
+                        var rows = Math.ceil(grid.height/grid.cellHeight);
+                        setGridPos(grid.currentIndex + cols*rows);
+                    }
+                    if (event.key == Qt.Key_PageUp)
+                    {
+                        var cols = Math.floor(grid.width/grid.cellWidth)
+                        var rows = Math.ceil(grid.height/grid.cellHeight);
+                        setGridPos(grid.currentIndex - cols*rows);
+                    }
                 }
             }
 

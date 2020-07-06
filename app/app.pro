@@ -20,7 +20,8 @@ QTEMAIL = $$PROJ/qt-email
 WEBPD = $$PROJ/tools/libwebp-1.1.0/src
         
 INCLUDEPATH += $$JPEGD
-LIBS += -L$$JPEGD/lib/ -lturbojpeg
+# make sure we get ours and not a system copy!
+LIBS += -L$$JPEGD/lib/ -l:libturbojpeg.a
 
 INCLUDEPATH += $$EXIFD
 LIBS += -L$$EXIFD/libexif/$$LIBDIR -lexif

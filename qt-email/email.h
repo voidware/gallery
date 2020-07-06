@@ -31,6 +31,7 @@ public:
     explicit Email(QObject* parent = 0, const QString& mimeTypesPath = ":/email/mime.types");
     
     Q_INVOKABLE void open(const QVariant& imgvar);
+    Q_INVOKABLE QString save(const QVariant& imgvar);
 
 signals:
 
