@@ -51,7 +51,7 @@ bool FSFiles::loadThumbJpg(const uchar* data, unsigned int fsize,
 
     int flags = 0;
     tjhandle tj = 0;
-    tjscalingfactor scalingFactor = { 1, 8 };
+    tjscalingfactor scalingFactor = { 1, 8 }; // 1/8
 
     tjscalingfactor *scalingFactors;
     int numScalingFactors;

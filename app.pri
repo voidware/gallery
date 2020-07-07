@@ -37,7 +37,7 @@ gcc:QMAKE_CFLAGS_WARN_ON = -Wall -Wno-unknown-pragmas -Wno-switch -Wno-unused-pa
 
 QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.12
 
-LIBPNG = $$PROJ/tools/apng/libpng_apng/libpng
+LIBPNG = $$PROJ/tools/libpng
 LIBZ = $$PROJ/tools/zlib
 
 INCLUDEPATH += $$PROJ/common

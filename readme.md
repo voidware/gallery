@@ -68,7 +68,14 @@ copy /Y *.a ..\lib
 
 ### webp
 copy makefile.unix to makefile
-comment out 4 lines starting with EXTRA_FLAGS
+comment out 4 lines starting with EXTRA_FLAGS, change to:
+
+```
+EXTRA_FLAGS= -DWEBP_HAVE_PNG -I../libpng
+DWEBP_LIBS= -L../libpng/release -l:libpng.a -L../zlib/release -l:libz.a
+CWEBP_LIBS= $(DWEBP_LIBS)
+```
+
 
 ensure `gcc` maps to the version from qt
 

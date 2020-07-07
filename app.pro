@@ -1,4 +1,4 @@
 TEMPLATE =subdirs
 CONFIG += ordered
-SUBDIRS= tools/zlib tools/libexif/libexif/exif.pro qt-email/email.pro app
+SUBDIRS= tools/zlib tools/libpng tools/libexif/libexif/exif.pro qt-email/email.pro app
 

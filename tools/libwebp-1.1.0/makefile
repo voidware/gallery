@@ -19,6 +19,11 @@
 #CWEBP_LIBS= $(DWEBP_LIBS) -ljpeg -ltiff
 #GIF_LIBS = -lgif
 
+EXTRA_FLAGS= -DWEBP_HAVE_PNG -I../libpng
+DWEBP_LIBS= -L../libpng/release -l:libpng.a -L../zlib/release -l:libz.a
+CWEBP_LIBS= $(DWEBP_LIBS)
+
+
 ifeq ($(strip $(shell uname)), Darwin)
   # Work around a problem linking tables marked as common symbols,
   # cf., src/enc/yuv.[hc]
