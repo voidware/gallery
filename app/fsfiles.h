@@ -176,7 +176,18 @@ struct FSFiles: public FSI, FSITraits
             {
                 Compare c;
                 std::sort(names.begin(), names.end(), c);
-                //for (auto& i : names) printf("%s\n", i.c_str());
+
+#ifdef LOGGING
+                if (Logged::_logLevel >= 5)
+                {
+                    int cc = 0;
+                    printf("\n");
+                    for (auto& i : names)
+                        printf("mv %s %d%s\n", i.c_str(), ++cc, suffixOf(i).c_str());
+
+                    printf("\n");
+                }
+#endif                
             }
 
             LOG3(TAG_FSI, "files of directory " << d << " count " << names.size());

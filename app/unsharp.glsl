@@ -30,7 +30,6 @@ vec4 hook()
 
 	// gaussian blur filter
 	// [ 1, 2 , 1 ]
-
 	// [ 2, 4 , 2 ]
 	// [ 1, 2 , 1 ]
 	// c1 c2 c3

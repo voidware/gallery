@@ -5,6 +5,8 @@ TARGET = Gallery
 CONFIG += c++11
 QT += qml gui quick quickcontrols2
 
+CONFIG += qtquickcompiler
+
 android {
 QT += androidextras
 }
@@ -24,10 +26,12 @@ INCLUDEPATH += $$JPEGD
 LIBS += -L$$JPEGD/lib/ -l:libturbojpeg.a
 
 INCLUDEPATH += $$EXIFD
-LIBS += -L$$EXIFD/libexif/$$LIBDIR -lexif
+LIBS += -L$$EXIFD/libexif/$$LIBDIR -l:libexif.a
 
 INCLUDEPATH += $$WEBPD
-LIBS += -L$$WEBPD -lwebp
+LIBS += -L$$WEBPD -l:libwebp.a
+
+LIBS += -L$$LIBZ -l:libz.a
 
 include($$QTEMAIL/email.pri)
         
