@@ -37,13 +37,14 @@ Rectangle
     property string label
     property double sc: 1.0
     property alias gamma: setgamma.gamma
-    property alias sharpen: sharpen.coeff_blur
+    property alias sharpen: sharpeneffect.coeff_blur
 
     // used for grabbing final result
-    property var theimage: fillsCanvas ? canvas : sharpen
+    property var theimage: fillsCanvas ? canvas : sharpeneffect
 
     property bool pinching: false
     property bool zoomed: false
+    property bool sharpenActive: sharpen > 0
 
     property int margin : 2
     border.width: margin
@@ -183,18 +184,20 @@ Rectangle
 
             // so we can apply shader
             layer.enabled: true
-            visible: false // !pinching
+            visible: !sharpenActive // !pinching
         }
 
         ShaderEffect 
         {
-            id: sharpen
+            id: sharpeneffect
             anchors.fill: setgamma
             property variant src: setgamma
             property double imgWidth: width
             property double imgHeight: height
             property double coeff_blur: 0
             fragmentShader: "qrc:/unsharp.glsl"
+            blending: false
+            visible: sharpenActive
         }
 
         PinchArea

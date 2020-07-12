@@ -132,7 +132,16 @@ struct FSI
     // file system interface
 
     typedef std::string string;
-    typedef std::vector<string> Names;
+
+    struct Name
+    {
+        string _name;
+        int    _orient = 0;
+
+        Name(const string& name) : _name(name) {}
+    };
+    
+    typedef std::vector<Name> Names;
 
     enum SortOrder
     {
@@ -141,7 +150,16 @@ struct FSI
         sort_date,
     };
 
-    virtual bool names(Names&, SortOrder sort = sort_name) const = 0;
-    virtual QImage load(const string& id) = 0;
-    virtual QImage loadThumb(const string& id, int w, int h) = 0;
+    Names _names;
+
+    Name& namefor(const string& ix) 
+    {
+        int i = std::stoi(ix);
+        assert(i >= 0 && i < (int)_names.size());
+        return _names[i];
+    }
+
+    virtual bool getNames(SortOrder sort = sort_name)  = 0;
+    virtual QImage load(const string& ix) = 0;
+    virtual QImage loadThumb(const string& ix, int w, int h) = 0;
 };

@@ -40,7 +40,7 @@ ApplicationWindow
     width: QControl.isMobile() ? Screen.desktopAvailableWidth : Math.min(1024, Screen.desktopAvailableWidth * 6.0)
     height: QControl.isMobile() ? Screen.desktopAvailableHeight : Math.min(1024, Screen.desktopAvailableHeight * 0.90)
 
-    title: directory
+    title: "Gallery 1.0"
     
     property string directory: settings.startfolder 
     property color bgCol: "#f0f0f0"

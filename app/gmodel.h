@@ -51,8 +51,7 @@ protected:
 
     Control*            _control;
     FSI*                _fs;
-    FSI::Names          _names;
-
+    
 public:
 
     enum CatRoles
@@ -72,7 +71,7 @@ public:
 
     int size() const
     {
-       return _names.size();
+        return _fs->_names.size();
     }
 
     // compliance
@@ -84,14 +83,15 @@ public:
         return n;
     }
 
+    string idof(int ix) const
+    {
+        return std::to_string(ix);
+    }
+
     string nameof(int ix) const
     {
-        string name;
-        if (ix < size()) 
-        {
-            name = _names[ix];
-        }
-        return name;
+        assert(ix < size());
+        return _fs->_names[ix]._name;
     }
 
     // compliance
@@ -110,14 +110,14 @@ public:
                 case NameRole:
                     {
                         string p("image://provider/");
-                        p += nameof(ix);
+                        p += idof(ix);
                         return QSTR(p);
                     }
                     break;
                 case ThumbRole:
                     {
                         string p("image://thumb/");
-                        p += nameof(ix);
+                        p += idof(ix);
                         return QSTR(p);
                     }
                     break;
@@ -181,9 +181,9 @@ public:
 
         int c = u_tolower(k);
         
-        for (int i = 0; i < (int)_names.size(); ++i)
+        for (int i = 0; i < size(); ++i)
         {
-            const string& fi = _names[i];
+            const string& fi = _fs->_names[i]._name;
             assert(fi.size());
             if (isHexFile(fi) > 0) continue; // ignore files deemed hex
             int ci = u_tolower(fi[0]);
@@ -198,11 +198,10 @@ protected:
     void _update()
     {
         // refresh name list
-        _names.clear();
 
         assert(_fs);
         
-        bool v = _fs->names(_names);
+        bool v = _fs->getNames();
         if (!v) 
         {
             LOG1(TAG_MODEL, "failed to load names");

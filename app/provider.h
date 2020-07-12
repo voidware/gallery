@@ -127,7 +127,9 @@ public:
         int width = 0;
         int height = 0;
 
-        string fname = STRQ(_id);
+        string id = STRQ(_id);
+        FSI::Name& name = _host->_fs->namefor(id);
+        string fname = name._name;
         int rw = _requestedSize.width();
         int rh = _requestedSize.height();
         bool cacheHit = false;
@@ -153,7 +155,7 @@ public:
             if (!cacheHit)
             {
                 // not in cache. try loading as thumb
-                _img = _host->_fs->loadThumb(fname, rw, rh);
+                _img = _host->_fs->loadThumb(id, rw, rh);
             }
         }
         else
@@ -172,7 +174,7 @@ public:
 
             LOG3(TAG_PROV, " loading full image " << fname);
         
-            _img = _host->_fs->load(fname);
+            _img = _host->_fs->load(id);
 
             if (!_img.isNull())
             {
@@ -231,7 +233,7 @@ public:
                     LOG3(TAG_PROV, "high quality scale of " << fname << ' ' << width << 'x' << height << " to " << rw << "x" << rh << " scale " << s);
 
                     _img = QResample(_img, rw, rh, &_abort);
-
+                    
                     ABORT;
                 }
                
@@ -300,145 +302,4 @@ public:
     List _asyncs;
     QThreadPool pool;
 };
-
-
-
-    /*
-    QImage requestImage(const QString &id, QSize *size, 
-                        const QSize &requestedSize) override
-    {
-       int width = 0;
-       int height = 0;
-
-       string fname = STRQ(id);
-       int rw = requestedSize.width();
-       int rh = requestedSize.height();
-       bool cacheHit = false;
-
-       if (rw > 0 && rh > 0)
-       {
-           LOG4(TAG_PROV, "request image " << fname << " scaled " << rw << "x" << rh);
-       }
-       else
-       {
-           LOG4(TAG_PROV, "request image " << fname);
-       }
-
-       QImage img;
-
-       if (_thumb)
-       {
-           // first look in cache
-           _loadLock.lock();  
-           img = _thumbCache.find(fname);
-           _loadLock.unlock();
-           
-           cacheHit = !img.isNull();
-
-           if (!cacheHit)
-           {
-               // not in cache. try loading as thumb
-               img = _fs->loadThumb(fname, rw, rh);
-           }
-       }
-       else
-       {
-           _loadLock.lock();
-           img = _fullCache.find(fname);
-           _loadLock.unlock();
-           
-           cacheHit = !img.isNull();
-       }
-
-       // fallback load as full image
-       if (img.isNull())
-       {
-           LOG3(TAG_PROV, " loading full image " << fname);
-           
-           img = _fs->load(fname);
-
-           if (!img.isNull())
-           {
-               assert(!cacheHit);
-
-               // add to full cache
-               _loadLock.lock();
-               bool v = _fullCache.add(fname, img);
-               _loadLock.unlock();
-
-               if (v)
-               {
-                   LOG4(TAG_PROV, " loaded " << fname << ' ' << img.width() << 'x' << img.height());
-               }
-               else
-               {
-                   LOG3(TAG_PROV, ">>> " << fname << " already loaded!");
-               }
-           }
-       }
-
-       if (!img.isNull())
-       {
-           width = img.width();
-           height = img.height();
-
-           if (rw > 0 && rh > 0 && (rw != width || rh != height))
-           {
-               double sx = (double)rw/width;
-               double sy = (double)rh/height;
-               double s;
-
-               if (_thumb)
-               {
-                   // make thumb fill space
-                   s = sx >= sy ? sx : sy;
-               }
-               else
-               {
-                   // normal not clipped
-                   s = sx <= sy ? sx : sy;
-               }
-               
-               rw = width*s;
-               rh = height*s;
-               
-               //LOG3(TAG_PROV, "requested width " << rw << " actual " << width);
-               //LOG3(TAG_PROV, "requested height " << rh << " actual " << height);
-               if (_thumb)
-               {
-                   // low quality
-                   img = img.scaled(rw, rh);
-               }
-               else
-               {
-                   LOG3(TAG_PROV, "high quality scale of " << fname << ' ' << width << 'x' << height << " to " << rw << "x" << rh << " scale " << s);
-                   img = QResample(img, rw, rh);
-               }
-               
-               width = rw;
-               height = rh;
-           }
-       }
-       else
-       {
-           LOG1(TAG_PROV, "failed to load " << fname);
-       }
-
-       if (_thumb && !img.isNull() && !cacheHit)
-       {
-           // add to thumb cache
-           _loadLock.lock();
-           bool v = _thumbCache.add(fname, img);
-           _loadLock.unlock();
-
-           if (!v)
-           {
-               LOG3(TAG_PROV, ">>> " << fname << " thumb already loaded!");
-           }
-       }
-
-       if (size) *size = QSize(width, height);
-       return img;
-    }
-    */
 

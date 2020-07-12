@@ -236,53 +236,17 @@ bool FSFiles::loadExifThumb(const char* fname, QImage& img, int& orient)
     return r;
 }
 
-QImage FSFiles::loadWebp(const string& path) const
+uchar* FSFiles::_loadFile(const string& path, FD::Pos& fsize) const
 {
-    QImage img;
+    // NB: caller must delete return data
     uchar* data = 0;
-    FD::Pos fsize;
-        
+    
     FD fd;
     if (fd.open(path.c_str()))
     {
         data = fd.readAll(&fsize);
-        if (data)
-        {
-            int w, h;
-            int v = WebPGetInfo(data, fsize, &w, &h);
-            if (v)
-            {
-                LOG3(TAG_FSI " WEBP ", path << ", " << w << "x" << h);
-
-                img = QImage(w, h, QImage::Format_ARGB32);
-                if (!img.isNull())
-                {
-                    uchar* bits = img.bits();
-                    int sz = img.sizeInBytes();
-                    int stride = img.bytesPerLine();
-                    uint8_t* b =  WebPDecodeBGRAInto(data, fsize,
-                                                     bits,
-                                                     sz,
-                                                     stride);
-                    if (b)
-                    {
-                        LOG3(TAG_FSI " decoded WEBP ", path);
-                    }
-                    else
-                    {
-                        LOG1(TAG_FSI "WEBP decode error", path);
-                        img = QImage(); // drop
-                    }
-                }
-            }
-            else
-            {
-                LOG1(TAG_FSI " Unable to decode WEBP ", path);
-            }
- 
-            delete data;
-        }
-        else
+    
+        if (!data)
         {
             LOG1(TAG_FSI "unable to read file ", path);
         }
@@ -291,6 +255,158 @@ QImage FSFiles::loadWebp(const string& path) const
     {
         LOG1(TAG_FSI "can't find ", path);
     }
+    
+    return data;
 
+}
+
+QImage FSFiles::loadJPEG(const string& path, Name& id) const
+{
+    QImage img;
+    FD::Pos fsize;
+
+    tjhandle tj = 0;
+    if (id._orient) tj  = tjInitTransform();
+    else tj = tjInitDecompress();
+    if (!tj)
+    {
+        LOG1("JPEG lib failed ", path);
+        return img;
+    }
+    
+    uchar* data = _loadFile(path, fsize);
+
+    unsigned char *txBuf = NULL;
+    unsigned long txSize = 0;
+    int flags = 0;
+
+    if (data)
+    {
+        if (id._orient)
+        {
+            tjtransform xform;            
+            memset(&xform, 0, sizeof(tjtransform));
+            switch (id._orient)
+            {
+            case 3: // 180
+                xform.op = TJXOP_VFLIP;                
+                break;
+            case 6: // 90
+                xform.op = TJXOP_ROT90;
+                break;
+            case 8: // -90
+                xform.op = TJXOP_ROT270;
+                break;
+            }
+
+            xform.options |= TJXOPT_TRIM;
+            if (tjTransform(tj, data, (unsigned long)fsize, 1, &txBuf, &txSize,
+                            &xform, flags) < 0)
+            {
+                LOG1("JPEG transform failed ", path);
+                delete [] data;
+                return img;
+            }
+
+            delete [] data;
+            data = txBuf;
+            fsize = (FD::Pos)txSize;
+        }
+        
+        int w, h;
+        int inSubsamp;
+        int inColorspace;
+        if (!tjDecompressHeader3(tj,
+                                 data,
+                                 (unsigned long)fsize,
+                                 &w, &h,
+                                 &inSubsamp,
+                                 &inColorspace))
+        {
+            int dpixelFormat = TJPF_BGRX;
+            int pixelSize = tjPixelSize[dpixelFormat];
+
+            LOG3("decoding jpeg size ", w << "x" << h << " pixsz " << pixelSize);
+                
+            uchar* ddata = new uchar[w * h * pixelSize];
+
+            if (!tjDecompress2(tj,
+                               data,
+                               (unsigned long)fsize,
+                               ddata,
+                               w,
+                               0,
+                               h,
+                               dpixelFormat,
+                               flags))
+            {
+                img = QImage(ddata, w, h,
+                             (pixelSize == 3 ? QImage::Format_RGB888 :
+                              QImage::Format_RGB32),
+                             imageCleanup, ddata);
+                    
+                ddata = 0; // drop
+            }
+            else
+            {
+                const char* why = tjGetErrorStr2(tj);
+                LOG1(TAG_FSI, "unable to decompress " << why);
+            }
+                
+            delete [] ddata;
+        }
+        else
+        {
+            LOG1(TAG_FSI, "bad jpeg header");
+        }
+
+        if (txBuf) tjFree(txBuf); // data  == txbuf
+        else delete [] data;
+    }
+    return img;
+}
+
+QImage FSFiles::loadWebp(const string& path) const
+{
+    QImage img;
+    FD::Pos fsize;
+    uchar* data = _loadFile(path, fsize);
+
+    if (data)
+    {
+        int w, h;
+        int v = WebPGetInfo(data, fsize, &w, &h);
+        if (v)
+        {
+            LOG3(TAG_FSI " WEBP ", path << ", " << w << "x" << h);
+
+            img = QImage(w, h, QImage::Format_ARGB32);
+            if (!img.isNull())
+            {
+                uchar* bits = img.bits();
+                int sz = img.sizeInBytes();
+                int stride = img.bytesPerLine();
+                uint8_t* b =  WebPDecodeBGRAInto(data, fsize,
+                                                 bits,
+                                                 sz,
+                                                 stride);
+                if (b)
+                {
+                    LOG3(TAG_FSI " decoded WEBP ", path);
+                }
+                else
+                {
+                    LOG1(TAG_FSI "WEBP decode error", path);
+                    img = QImage(); // drop
+                }
+            }
+        }
+        else
+        {
+            LOG1(TAG_FSI " Unable to decode WEBP ", path);
+        }
+ 
+        delete data;
+    }
     return img;
 }

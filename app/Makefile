@@ -225,10 +225,11 @@ Makefile: app.pro ../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/win32-g++/qm
 		../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/resolve_config.prf \
 		../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/exclusive_builds_post.prf \
 		../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/default_post.prf \
+		../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/resources.prf \
+		../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/qtquickcompiler.prf \
 		../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/precompile_header.prf \
 		../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/warn_on.prf \
 		../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/qt.prf \
-		../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/resources.prf \
 		../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/moc.prf \
 		../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/win32/opengl.prf \
 		../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/qmake_use.prf \
@@ -409,10 +410,11 @@ Makefile: app.pro ../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/win32-g++/qm
 ../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/resolve_config.prf:
 ../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/exclusive_builds_post.prf:
 ../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/default_post.prf:
+../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/resources.prf:
+../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/qtquickcompiler.prf:
 ../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/precompile_header.prf:
 ../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/warn_on.prf:
 ../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/qt.prf:
-../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/resources.prf:
 ../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/moc.prf:
 ../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/win32/opengl.prf:
 ../../../../Qt/Qt5.13.2/5.13.2/mingw73_64/mkspecs/features/qmake_use.prf:

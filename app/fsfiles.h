@@ -156,41 +156,44 @@ struct FSFiles: public FSI, FSITraits
 {
     string      _baseDir;
     
-    bool names(Names& names, SortOrder sortby) const override
+    bool getNames(SortOrder sortby) override
     {
         string d = _baseDir;
         if (d.empty()) d = ".";
+
+        _names.clear();
         
-        bool v = FD::getDirectory(d.c_str(), names);
+        std::vector<string> fnames;
+        bool v = FD::getDirectory(d.c_str(), fnames);
 
         if (v)
         {
-            // filter names
-            for (Names::iterator it = names.begin(); it != names.end();)
-            {
-                if (isImageFile(*it)) ++it;
-                else it = names.erase(it);
-            }
-
             if (sortby == sort_name)
             {
                 Compare c;
-                std::sort(names.begin(), names.end(), c);
-
-#ifdef LOGGING
-                if (Logged::_logLevel >= 5)
-                {
-                    int cc = 0;
-                    printf("\n");
-                    for (auto& i : names)
-                        printf("mv %s %d%s\n", i.c_str(), ++cc, suffixOf(i).c_str());
-
-                    printf("\n");
-                }
-#endif                
+                std::sort(fnames.begin(), fnames.end(), c);
             }
 
-            LOG3(TAG_FSI, "files of directory " << d << " count " << names.size());
+            // filter names
+            for (auto& i : fnames)
+            {
+                if (isImageFile(i)) 
+                    _names.emplace_back(Name(i));
+            }
+            
+#ifdef LOGGING
+            if (Logged::_logLevel >= 5)
+            {
+                    int cc = 0;
+                    printf("\n");
+                    for (auto& i : _names)
+                        printf("mv %s %d%s\n", i._name.c_str(), ++cc, suffixOf(i._name).c_str());
+                    
+                    printf("\n");
+            }
+#endif                
+            
+            LOG3(TAG_FSI, "files of directory " << d << " count " << _names.size());
         }
         else
         {
@@ -199,17 +202,22 @@ struct FSFiles: public FSI, FSITraits
         return v;
     }
 
-    QImage loadWebp(const string& path) const;
-
-
-    QImage load(const string& id) override
+    QImage load(const string& ix) override
     {
-        string p = makePath(_baseDir, id);
+        Name& id = namefor(ix);
+        
+        string p = makePath(_baseDir, id._name);
         LOG4(TAG_FSI, "loading " << p);
 
         if (isWEBP(p))
         {
             QImage img = loadWebp(p);
+            if (!img.isNull()) return img;
+        }
+
+        if (isJPG(p))
+        {
+            QImage img = loadJPEG(p, id);
             if (!img.isNull()) return img;
         }
 
@@ -238,7 +246,7 @@ struct FSFiles: public FSI, FSITraits
             t.rotate(-90);
             break;
         default:
-            LOG2(TAG_FSI, ">>>> Unhandled orientation " << orient);
+            LOG2(TAG_FSI, "Unhandled orientation " << orient);
             orient = 0;
         }
 
@@ -249,53 +257,48 @@ struct FSFiles: public FSI, FSITraits
         return img;
     }
 
-    QImage loadThumb(const string& id, int w, int h) override
+    QImage loadThumb(const string& ix, int w, int h) override
     {
         QImage r;
-            
-        string p = makePath(_baseDir, id);
+
+        Name& id = namefor(ix);
+        string p = makePath(_baseDir, id._name);
         int orient = 0;
 
         if (loadExifThumb(p.c_str(), r, orient))
         {
-            LOG3(TAG_FSI, "loaded exif thumb for " << id);
+            id._orient = orient;
+            LOG3(TAG_FSI, "loaded exif thumb for " << p);
         }
 
-        if (r.isNull() && isJPG(id))
+        if (r.isNull() && isJPG(p))
         {
             // perform scan method to load jpg thumb
             uchar* data = 0;
             FD::Pos fsize;
-        
-            FD fd;
-            if (fd.open(p.c_str()))
+            data = _loadFile(p, fsize);
+            if (data)
             {
-                data = fd.readAll(&fsize);
-                if (data)
-                {
-                    loadThumbJpg(data, (unsigned int)fsize, w, h, r); // &r
-                    delete data;
-                }
-                else
-                {
-                    LOG1(TAG_FSI " Unable to load ", id);
-                }
-            }
-            else
-            {
-                LOG1(TAG_FSI "can't find ", id);
+                LOG3(TAG_FSI, "building jpg thumb for " << p);
+                loadThumbJpg(data, (unsigned int)fsize, w, h, r); // &r
+                delete data;
             }
         }
 
-        if (!r.isNull() && orient)
+        if (!r.isNull() && id._orient)
         {
-            r = fixOrientation(r, orient);
+            r = fixOrientation(r, id._orient);
         }
         
         return r;
     }
 
+    QImage loadWebp(const string& path) const;
+    QImage loadJPEG(const string& path, Name& n) const;
+
 protected:
+
+    uchar* _loadFile(const string& path, FD::Pos& fsize) const;
     
     bool loadThumbJpg(const uchar* data, unsigned int fsize,
                       int w, int h, QImage& r);
