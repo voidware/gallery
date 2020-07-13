@@ -86,6 +86,11 @@ struct FSITraits
         return isImageSuffix(suffixOf(s).c_str()) == img_webp;
     }
 
+    static bool isPNG(const std::string& s)
+    {
+        return isImageSuffix(suffixOf(s).c_str()) == img_png;
+    }
+
     static int isHexFile(const std::string& s, int i = 0)
     {
         // is the filename a hex number

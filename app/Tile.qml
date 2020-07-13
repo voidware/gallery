@@ -64,13 +64,18 @@ Item
             verticalAlignment: Image.AlignBottom
         }
 
-        Text
+        Label
         {
+            // caption text
             id: label
             width: parent.width
             anchors.bottom: parent.bottom
             elide: Text.ElideRight
             text: m.label
+            background: Rectangle 
+            { 
+                color: QControl.colorForType(m.label)
+            }
         }
     }
 

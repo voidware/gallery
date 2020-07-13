@@ -186,6 +186,22 @@ public:
         return _gThumbProvider;
     }
 
+    Q_INVOKABLE QColor colorForType(const QString& name) const
+    {
+        QColor c(0,0,0,0); // transparent
+        string n = STRQ(name);
+        if (FSITraits::isPNG(n))
+        {
+            c = QColor("aliceblue");
+        }
+        else if (FSITraits::isWEBP(n))
+        {
+            c = QColor("lightyellow");
+        }
+        return c;
+    }
+
+
 signals:
 
     void directoryChanged();

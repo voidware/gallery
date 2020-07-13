@@ -48,6 +48,7 @@ FocusScope
         
         TextField
         {
+            // directory entry bar
             id: textin
             width: parent.width
 
@@ -66,8 +67,7 @@ FocusScope
         
         Rectangle
         {
-            //anchors.fill: parent
-            
+            // main gallery area
             color: app.bgCol
             width: parent.width
             height: gallery.height - textin.height
