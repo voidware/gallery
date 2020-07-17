@@ -40,7 +40,7 @@ ApplicationWindow
     width: QControl.isMobile() ? Screen.desktopAvailableWidth : Math.min(1024, Screen.desktopAvailableWidth * 6.0)
     height: QControl.isMobile() ? Screen.desktopAvailableHeight : Math.min(1024, Screen.desktopAvailableHeight * 0.90)
 
-    title: "Gallery 1.0.1"
+    title: "Gallery 1.0.3"
     
     property string directory: settings.startfolder 
     property color bgCol: "#f0f0f0"
@@ -84,6 +84,11 @@ ApplicationWindow
         email.open(img);
     }
 
+    function copyDest(name)
+    {
+        QControl.copyFile(name, settings.destdir);
+    }
+
     function saveForEmail(img)
     {
         email.save(img);
@@ -105,6 +110,7 @@ ApplicationWindow
     {
         id: settings
 
+        // ui
         property alias x: app.x
         property alias y: app.y
         property alias width: app.width
@@ -112,9 +118,13 @@ ApplicationWindow
 
         property alias startfolder: props.startfolder
 
+        // email
         property alias mailto: props.mailto
         property alias subject: props.subject
         property alias bcc: props.bcc
+
+        // files
+        property alias destdir: props.destdir
 
     }
 

@@ -38,33 +38,62 @@ Item
     
     focus:true
 
+    function next()
+    {
+        swipe.incrementCurrentIndex();
+    }
+
+    function previous()
+    {
+        swipe.decrementCurrentIndex();
+    }
+
     SplitView
     {
         anchors.fill: parent
         orientation: Qt.Vertical
         
-        SwipeView
+        Item
         {
-            id: swipe
             SplitView.fillHeight: true
-            interactive: theitem ? !theitem.zoomed: true
 
-            Repeater
+            MouseArea
             {
-                model: gModel
-                Loader 
+                // this is underneath the imageview and therefore
+                // gets the rest of the events
+                anchors.fill: parent
+                acceptedButtons: Qt.AllButtons 
+                onPressed:
                 {
-                    //active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
-                    property string label: model.label
-                    active: SwipeView.isCurrentItem 
-                    sourceComponent: ImageView
-                    {
-                        // model "name" calls the provider
-                        name: model.name
-                        label: model.label
-                    }
+                    //console.log("SARG!")
+                    if (mouse.button == Qt.ForwardButton) next();
+                    if (mouse.button == Qt.BackButton) previous();
+                }
+            }
 
-                    onLoaded: theitem = item
+            SwipeView
+            {
+                id: swipe
+                anchors.fill: parent
+                interactive: theitem ? !theitem.zoomed: true
+
+                Repeater
+                {
+                    model: gModel
+                    Loader 
+                    {
+                        //active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
+                        property string label: model.label
+                        active: SwipeView.isCurrentItem 
+                        sourceComponent: ImageView
+                        {
+                            // model "name" calls the provider
+                            name: model.name
+                            label: model.label
+                            filepath: model.path
+                        }
+                        onLoaded: theitem = item
+                    }
                 }
             }
         }
@@ -107,10 +136,13 @@ Item
     Keys.onPressed:
     {
         //https://doc.qt.io/qt-5/qt.html#Key-enum
-        if (event.key == Qt.Key_Right) swipe.incrementCurrentIndex();
-        else if (event.key == Qt.Key_Left) swipe.decrementCurrentIndex();
+        if (event.key == Qt.Key_Right) next();
+        else if (event.key == Qt.Key_Left) previous();
         else if (event.key == Qt.Key_Escape) app.pop();
-        else if (event.key == Qt.Key_Home) swipe.currentItem.item.naturalSize()
+        else if (event.key == Qt.Key_Home) 
+        {
+            swipe.currentItem.item.naturalSize()
+        }
         else if (event.key == Qt.Key_F1) 
         {
             if (theitem) 
@@ -129,5 +161,7 @@ Item
                 });
             }
         }
+        else if (event.text == "c") app.copyDest(theitem.filepath);
     }
 }
+    

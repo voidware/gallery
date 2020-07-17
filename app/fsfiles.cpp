@@ -205,12 +205,7 @@ bool FSFiles::loadExifThumb(const char* fname, QImage& img, int& orient)
 
                 orient = exif_get_short(eo->data, bo);
 
-                /*
-                if (orient > 1)
-                {
-                    LOG3(TAG_FSI, fname << " orientation " << orient);
-                }
-                */
+                //if (orient > 1) LOG3(TAG_FSI, fname << " orientation " << orient);
             }
             
             /* Make sure the image had a thumbnail before trying to write it */

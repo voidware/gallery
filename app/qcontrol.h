@@ -201,6 +201,35 @@ public:
         return c;
     }
 
+    Q_INVOKABLE bool copyFile(const QString& qsrc, const QString& qdst)
+    {
+        bool res = false;
+        string dst = STRQ(qdst);
+        if (!dst.empty())
+        {
+            string src = STRQ(qsrc);
+            if (!src.empty())
+            {
+                string name = filenameOf(src);
+                string dpath = makePath(dst, name);
+                //LOG3(TAG "copy file src:", src << " dest:" << dst << " name:" << name);
+
+                // in case it exists already we will overwrite
+                QFile::remove(QSTR(dpath));
+                
+                res = QFile::copy(QSTR(src), QSTR(dpath));
+                if (res)
+                {
+                    LOG3(TAG "copied file ", src << " to " << dpath);
+                }
+                else
+                {
+                    LOG1(TAG "FAILED file copy ", src << " to " << dpath);
+                }
+            }
+        }
+        return res;
+    }
 
 signals:
 

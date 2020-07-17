@@ -154,8 +154,6 @@ struct Compare: public FSITraits
 
 struct FSFiles: public FSI, FSITraits
 {
-    string      _baseDir;
-    
     bool getNames(SortOrder sortby) override
     {
         string d = _baseDir;
@@ -250,11 +248,7 @@ struct FSFiles: public FSI, FSITraits
             orient = 0;
         }
 
-        if (orient)
-        {
-            return img.transformed(t);
-        }
-        return img;
+        return orient ? img.transformed(t) : img;
     }
 
     QImage loadThumb(const string& ix, int w, int h) override
@@ -267,9 +261,10 @@ struct FSFiles: public FSI, FSITraits
 
         if (loadExifThumb(p.c_str(), r, orient))
         {
-            id._orient = orient;
             LOG3(TAG_FSI, "loaded exif thumb for " << p);
         }
+
+        id._orient = orient;
 
         if (r.isNull() && isJPG(p))
         {

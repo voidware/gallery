@@ -35,6 +35,7 @@ Rectangle
     id: root
     property string name
     property string label
+    property string filepath
     property double sc: 1.0
     property alias gamma: setgamma.gamma
     property alias sharpen: sharpeneffect.coeff_blur
@@ -161,7 +162,8 @@ Rectangle
                 smooth: false
                 z:1
 
-                visible: !pinching
+                //visible: !pinching
+                visible: false
             }
 
             /*
@@ -171,8 +173,6 @@ Rectangle
                 running: pic.status === Image.Loading
             }
             */
-
-            
         }
 
         GammaAdjust 
@@ -283,8 +283,8 @@ Rectangle
                 {
                     if (wheel.modifiers & Qt.ControlModifier)
                     {
-                        frame.rotation += wheel.angleDelta.y / 120 * 5;
-                        if (Math.abs(frame.rotation) < 4) frame.rotation = 0;
+                        canvas.rotation += wheel.angleDelta.y / 120 * 5;
+                        if (Math.abs(canvas.rotation) < 4) canvas.rotation = 0;
                     } else {
                         frame.rotation += wheel.angleDelta.x / 120;
                         if (Math.abs(frame.rotation) < 0.6) frame.rotation = 0;

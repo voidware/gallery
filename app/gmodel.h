@@ -59,6 +59,7 @@ public:
         NameRole = Qt::UserRole + 1,
         ThumbRole = Qt::UserRole + 2,
         LabelRole = Qt::UserRole + 3,
+        PathRole = Qt::UserRole + 4,
     };
 
     GalleryModel(Control* control, FSI* fsi) : QAbstractListModel(0) 
@@ -124,28 +125,9 @@ public:
                 case LabelRole:
                     return QSTR(nameof(ix));
                     break;
-                    /*
                 case PathRole:
-                    {
-                        const string& p = _board._tiles[ix]._path;
-                        //LOG3("bmodel path ", p);
-                        return QSTR(p);
-                    }
+                    return QSTR(makePath(_fs->_baseDir, nameof(ix)));
                     break;
-                case IDRole:
-                    {
-                        const Hex& h = _board._tiles[ix];
-                        return h._id;
-                    }
-                    break;
-                case ColRole:
-                    {
-                        const Hex& h = _board._tiles[ix];
-                        HexCol c(h._col);
-                        return QColor(c.r, c.g, c.b, c.a);
-                    }
-                    break;
-                    */
                 default:
                     LOG3("Request for item ", ix << " unknown role " << role);
                     break;
@@ -214,6 +196,7 @@ protected:
         roles[NameRole] = "name";
         roles[ThumbRole] = "thumb";
         roles[LabelRole] = "label";
+        roles[PathRole] = "path";
         return roles;
     }
 };

@@ -167,4 +167,7 @@ struct FSI
     virtual bool getNames(SortOrder sort = sort_name)  = 0;
     virtual QImage load(const string& ix) = 0;
     virtual QImage loadThumb(const string& ix, int w, int h) = 0;
+
+    string      _baseDir;
+
 };

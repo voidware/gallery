@@ -37,6 +37,7 @@ Item
     property string mailto
     property string subject
     property string bcc
+    property string destdir
 
     anchors.margins: 16
 
@@ -74,8 +75,16 @@ Item
             onChanged: bcc = text
         }
         
-        PropLabel { text: "mailfrom" }
-        PropInput { id: mailfrom }
+        //PropLabel { text: "mailfrom" }
+        //PropInput { id: mailfrom }
+
+        PropLabel { text: "move/copy destination" }
+        PropInput
+        {
+            text: destdir
+            onChanged: destdir = text
+        }
+        
     }
 }
 
