@@ -4,7 +4,7 @@ A better picture gallery
 
 ## Quickstart
 
-### usage
+### Usage
 enter directory in top line entry box
 
 ### Gallery Keys
@@ -19,15 +19,17 @@ enter directory in top line entry box
 * esc = close image
 * c = copy image to destdir (defined in side panel)
 
-### mouse
+### Mouse
 * Scrollwheel to zoom
 * Ctrl+scroll, rotate
 * left button pans
 * double click to close image
 
-### panels
-Left slide panel = email settings
-Bottom slide panel = picture settings (gamma & sharpen)
+### Panels
+* Left slide panel
+  Settings.
+* Bottom slide panel
+  nondestructive image adjustment (gamma & sharpen)
 
 
 ## Building
@@ -37,8 +39,10 @@ Dependencies Qt5.13.X or Qt5.14.X
 These instructions as for Windows mingw64.
 
 ### epg
-* cd tools\epeg\src\lib
-* make
+```
+cd tools\epeg\src\lib
+make
+```
 
 ### jpeg-turbo
 NOTE: must make a `.pro` file for this!
@@ -75,13 +79,15 @@ libs are:
 exit shell
 
 manually copy *.a to lib (from build)
-* mkdir ..\lib
-* copy /Y *.a ..\lib
+```
+mkdir ..\lib
+copy /Y *.a ..\lib
+```
 
 
 ### webp
-copy makefile.unix to makefile
-comment out 4 lines starting with EXTRA_FLAGS, change to:
+* copy makefile.unix to makefile
+* comment out 4 lines starting with EXTRA_FLAGS, change to:
 
 ```
 EXTRA_FLAGS= -DWEBP_HAVE_PNG -I../libpng
@@ -96,8 +102,8 @@ then;
 
 generates `src\libwebp.a`
 
-### app
-cd to root dir
+### App
+cd to `gallery` root dir;
 
 ```
 qmake -r
