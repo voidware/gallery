@@ -118,6 +118,38 @@ cd `gallery` root dir;
 
 `mkdist.bat`
 
+## Misc Notes
+
+Turns out Qt already has libjpeg-turbo _and_ webp. Which means the loading of images with these should be built in, **but**;
+
+Gallery wants to make fast thumbnails on the fly, ideally without loading the whole image. For Jpeg, we look for EXIF thumbs, which is nothing to do with libjpg, but often they aren't there. So in that case we perform a high-speed jpeg low-res load. This is done using the libjpeg low-level API supplying all the fast, low-quality flags and 1/8 scaling. You can't do this from the qt image level.
+
+Right now, webp loads the whole image always. So we're no better than the built-in qt image. But, i want to do something similar with webp. not sure how at the moment, but it will be needed.
+
+Does webp have exif? Well it appears the container format can have meta data, which _might_ have exif and _might_ have a thumb. However, I've not seen any image program that puts it in!
+
+So one idea later is to have an option to actually insert the EXIF + thumb into an existing webp _without_ changing the image bits at all. Ie non-destructive with respect to the image.
+
+Also we get to use the latest webp lib, which supports a "nearly lossless" format. Maybe add some re-compress options later. eg convert to lossless/nearly lossless etc.
+
+Plan to add libpng as well at some point. The same issues with exif and fast thumbnail apply here too. For some weird reasons EXIF support wasn't added to png until recently, so no one supports it! Have you noticed that PNGs don't have thumbnails. :-/
+
+Maybe have an option to nondestructively add them, either that or some ripping code to fast load a low-res version like we do for jpg. There's also the progressive storage mode for png, which is ideal for thumbnail generation. Although this is a compression choice and we don't want to have to lossless recompress images.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
