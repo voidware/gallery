@@ -163,7 +163,6 @@ Rectangle
                 z:1
 
                 //visible: !pinching
-                visible: false
             }
 
             /*
