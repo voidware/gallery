@@ -195,7 +195,7 @@ bool FSFiles::loadExifThumb(const char* fname, QImage& img, int& orient)
                   0th Row      0th Column
                   1  top          left side
                   2  top          right side
-                  3  bottom       right side
+                  3  bottom       right side  // 180?
                   4  bottom       left side
                   5  left side    top
                   6  right side   top
@@ -205,7 +205,7 @@ bool FSFiles::loadExifThumb(const char* fname, QImage& img, int& orient)
 
                 orient = exif_get_short(eo->data, bo);
 
-                //if (orient > 1) LOG3(TAG_FSI, fname << " orientation " << orient);
+                if (orient > 1) LOG3(TAG_FSI, fname << " orientation " << orient);
             }
             
             /* Make sure the image had a thumbnail before trying to write it */
@@ -284,7 +284,7 @@ QImage FSFiles::loadJPEG(const string& path, Name& id) const
             switch (id._orient)
             {
             case 3: // 180
-                xform.op = TJXOP_VFLIP;                
+                xform.op = TJXOP_ROT180;
                 break;
             case 6: // 90
                 xform.op = TJXOP_ROT90;
