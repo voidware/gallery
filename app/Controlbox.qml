@@ -56,7 +56,7 @@ Rectangle
                 Layout.preferredHeight: implicitHeight
                 Layout.preferredWidth: implicitWidth
                 background: Rectangle { border.color: "red" }
-                font.pointSize: 18
+                font.pixelSize: 24
                 padding: 4
                 text: "Gamma"
             }
@@ -78,7 +78,7 @@ Rectangle
                 Layout.preferredWidth: 50
                 horizontalAlignment: Text.AlignHCenter
                 background: Rectangle { border.color: "black" }
-                font.pointSize: 18
+                font.pixelSize: 24
                 padding: 4
                 text: gammaslider.value.toFixed(2);
             }
@@ -88,7 +88,7 @@ Rectangle
                 Layout.preferredHeight: implicitHeight
                 Layout.preferredWidth: implicitWidth
                 background: Rectangle { border.color: "red" }
-                font.pointSize: 18
+                font.pixelSize: 24
                 padding: 4
                 text: "Sharpen"
             }
@@ -106,7 +106,7 @@ Rectangle
                 Layout.preferredWidth: 50
                 horizontalAlignment: Text.AlignHCenter
                 background: Rectangle { border.color: "black" }
-                font.pointSize: 18
+                font.pixelSize: 24
                 padding: 4
                 text: sharpslider.value.toFixed(2);
             }

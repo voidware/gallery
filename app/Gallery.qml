@@ -52,7 +52,7 @@ FocusScope
             id: textin
             width: parent.width
 
-            font.pointSize: 18
+            font.pixelSize: 24
             bottomPadding: 4
 
             inputMethodHints: Qt.ImhUrlCharactersOnly 
