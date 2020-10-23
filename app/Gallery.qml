@@ -125,6 +125,16 @@ FocusScope
                         var rows = Math.ceil(grid.height/grid.cellHeight);
                         setGridPos(grid.currentIndex - cols*rows);
                     }
+                    else if (event.key == Qt.Key_F3) 
+                    {
+                        console.log("activating level filter")
+                        QControl.enableLevelFilter(true);
+                    }
+                    else if (event.key == Qt.Key_F4) 
+                    {
+                        console.log("de-activating level filter")
+                        QControl.enableLevelFilter(false);
+                    }
                 }
             }
 

@@ -321,7 +321,7 @@ QImage FSFiles::loadJPEG(const string& path, Name& id) const
             int dpixelFormat = TJPF_BGRX;
             int pixelSize = tjPixelSize[dpixelFormat];
 
-            LOG3("decoding jpeg size ", w << "x" << h << " pixsz " << pixelSize);
+            LOG3("decoding jpeg size ", w << "x" << h << " pixsize " << pixelSize);
                 
             uchar* ddata = new uchar[w * h * pixelSize];
 
@@ -335,6 +335,18 @@ QImage FSFiles::loadJPEG(const string& path, Name& id) const
                                dpixelFormat,
                                flags))
             {
+                if (_filter)
+                {
+                    RawPixels rp;
+                    rp._data = ddata;
+                    rp._size = w*h*pixelSize;
+                    rp._w = w;
+                    rp._h = h;
+                    rp._pixelSize = pixelSize;
+
+                    (_filter)(&rp);
+                }
+                
                 img = QImage(ddata, w, h,
                              (pixelSize == 3 ? QImage::Format_RGB888 :
                               QImage::Format_RGB32),

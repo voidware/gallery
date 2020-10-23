@@ -65,7 +65,10 @@ HEADERS += \
     qresample.h \
     imgcache.h \
     permissions.h \
-    bint.h
+    bint.h \
+    filter.h \
+    levelfilter.h 
+
 
 DISTFILES += \
     android/AndroidManifest.xml \

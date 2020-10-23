@@ -219,6 +219,8 @@ struct FSFiles: public FSI, FSITraits
             if (!img.isNull()) return img;
         }
 
+        // TODO PNG Loader
+
         // otherwise use Qt to load
         QImageReader ir(QSTR(p));
         ir.setAutoTransform(true);

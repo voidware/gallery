@@ -33,6 +33,7 @@
 #include "qdefs.h"
 #include "cutils.h"
 #include "strutils.h"
+#include "filter.h"
 
 #define TAG_FSI  "FSI, "
 
@@ -168,6 +169,7 @@ struct FSI
     virtual QImage load(const string& ix) = 0;
     virtual QImage loadThumb(const string& ix, int w, int h) = 0;
 
-    string      _baseDir;
+    string              _baseDir;
+    PixelFilter         _filter;
 
 };
