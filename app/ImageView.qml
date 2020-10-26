@@ -82,6 +82,12 @@ Rectangle
         setscale(1/pscale)
     }
 
+    function autoLevel()
+    {
+        hqpic.source = name + "&l";
+        //console.log("apply autolevel", pic.source)
+    }
+
     function reset()
     {
         sc = 1

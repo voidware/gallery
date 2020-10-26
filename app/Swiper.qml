@@ -65,7 +65,6 @@ Item
                 acceptedButtons: Qt.AllButtons 
                 onPressed:
                 {
-                    //console.log("SARG!")
                     if (mouse.button == Qt.ForwardButton) next();
                     if (mouse.button == Qt.BackButton) previous();
                 }
@@ -162,6 +161,10 @@ Item
             }
         }
         else if (event.text == "c") app.copyDest(theitem.filepath);
+        else if (event.text == "l") 
+        {
+            if (theitem) theitem.autoLevel();
+        }
     }
 }
     

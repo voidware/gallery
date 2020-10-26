@@ -68,6 +68,7 @@ public:
     bool        _thumb;
     ImgCache    _thumbCache;
     ImgCache    _fullCache;
+    bool        _enableLevelFilter = false;
 
     // prevent full images from being loaded at the same time
     mutex       _loadLock;
@@ -120,6 +121,16 @@ public:
 
 #define ABORT if (abort()) { emit finished(); return; }
 
+    string makeCacheID(const string& name) const
+    {
+        string parts = STRQ(_id);
+        size_t pos = parts.find('&');
+        if (pos == string::npos) return name;
+        
+        // form file name + '&' options
+        return name + parts.substr(pos);
+    }
+
     void run() override
     {
         ABORT;
@@ -127,7 +138,12 @@ public:
         int width = 0;
         int height = 0;
 
-        string id = STRQ(_id);
+        // we can signal various image options on the end of the ID
+        // separated by '&'
+        QStringList idparts = _id.split('&', Qt::SkipEmptyParts);
+        if (!idparts.size()) return;  // bail
+        
+        string id = STRQ(idparts.at(0));
         FSI::Name& name = _host->_fs->namefor(id);
         string fname = name._name;
         int rw = _requestedSize.width();
@@ -143,11 +159,13 @@ public:
             LOG4(TAG_PROV, "request image " << fname);
         }
 
+        string cid = makeCacheID(fname);
+        
         if (_host->_thumb)
         {
             // first look in cache
             lock();
-            _img = _host->_thumbCache.find(fname);
+            _img = _host->_thumbCache.find(cid); 
             unlock();
            
             cacheHit = !_img.isNull();
@@ -161,7 +179,7 @@ public:
         else
         {
             lock();
-            _img = _host->_fullCache.find(fname);
+            _img = _host->_fullCache.find(cid);
             unlock();
            
             cacheHit = !_img.isNull();
@@ -172,9 +190,10 @@ public:
         {
             ABORT;
 
-            LOG3(TAG_PROV, " loading full image " << fname);
+            LOG3(TAG_PROV, " loading full image " << cid);
         
-            _img = _host->_fs->load(id);
+            // pass in the original ID with qualified '&' options
+            _img = _host->_fs->load(STRQ(_id));
 
             if (!_img.isNull())
             {
@@ -182,7 +201,7 @@ public:
 
                 // add to full cache
                 lock();
-                bool v = _host->_fullCache.add(fname, _img);
+                bool v = _host->_fullCache.add(cid, _img);
                 unlock();
 
                 if (v)
@@ -272,9 +291,31 @@ public:
 
     GalleryProvider(FSI* fs, bool thumb) : GalleryProviderBase(fs, thumb) {}
 
-    QQuickImageResponse* requestImageResponse(const QString &id,
+    static QString combineOption(const QString& id, const QString& opt)
+    {
+        QStringList idparts = id.split('&', Qt::SkipEmptyParts);
+        for (int i = 0; i < idparts.size(); ++i)
+            if (idparts.at(i) == opt) return id; // already present
+        
+        return id + '&' + opt;
+    }
+
+    QQuickImageResponse* requestImageResponse(const QString &reqID,
                                               const QSize &requestedSize) override
     {
+
+        QString id;
+        if (_enableLevelFilter)
+        {
+            // add to request id, if not present
+            id = combineOption(reqID, "l");
+            LOG4(TAG_PROV "request ID ", STRQ(id));
+        }
+        else
+        {
+            id = reqID;
+        }
+        
         AsyncImageResponse *response = 
             new AsyncImageResponse(this, id, requestedSize);
         

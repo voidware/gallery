@@ -30,6 +30,7 @@
 #include "fsfiles.h"
 #include "fd.h"
 #include "webp/decode.h"
+#include "levelfilter.h"
 
 //https://cboard.cprogramming.com/c-programming/179287-reading-exif-data-png-file.html
 
@@ -335,7 +336,7 @@ QImage FSFiles::loadJPEG(const string& path, Name& id) const
                                dpixelFormat,
                                flags))
             {
-                if (_filter)
+                if (id._autolevel)
                 {
                     RawPixels rp;
                     rp._data = ddata;
@@ -343,8 +344,7 @@ QImage FSFiles::loadJPEG(const string& path, Name& id) const
                     rp._w = w;
                     rp._h = h;
                     rp._pixelSize = pixelSize;
-
-                    (_filter)(&rp);
+                    levelFilter(&rp);
                 }
                 
                 img = QImage(ddata, w, h,
