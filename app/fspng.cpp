@@ -105,15 +105,17 @@ static void png_row_fn(png_structp png_ptr, png_bytep new_row, png_uint_32 row_n
 {
     PNGState* ps = (PNGState*)png_get_progressive_ptr(png_ptr);
     assert(ps);
-    assert(!pass);
     //LOG3(TAG_FSI "png_row_fn; row ", row_num);
 
-    assert(row_num < ps->_h);
-    
-    uchar* rp = ps->_data + row_num*ps->_stride;
-    png_progressive_combine_row(png_ptr,
-                                rp,
-                                new_row);        
+    if (new_row)
+    {
+        assert(row_num < ps->_h);
+        
+        uchar* rp = ps->_data + row_num*ps->_stride;
+        png_progressive_combine_row(png_ptr,
+                                    rp,
+                                    new_row);
+    }
 }
 
 static void png_end_fn(png_structp png_ptr, png_infop info_ptr)
