@@ -202,7 +202,19 @@ struct FSFiles: public FSI, FSITraits
 
     QImage load(const string& ix) override
     {
-        Name& id = namefor(ix);
+        std::vector<string> parts;
+        split(parts, ix, '&');
+
+        if (!parts.size()) return QImage(); // bail
+        
+        Name& id = namefor(parts[0]);
+
+        // decode options
+        id._autolevel = false;
+        for (size_t i = 1; i < parts.size(); ++i)
+        {
+            if (parts[i] == "l") id._autolevel = true;
+        }
         
         string p = makePath(_baseDir, id._name);
         LOG4(TAG_FSI, "loading " << p);
@@ -212,14 +224,16 @@ struct FSFiles: public FSI, FSITraits
             QImage img = loadWebp(p);
             if (!img.isNull()) return img;
         }
-
-        if (isJPG(p))
+        else if (isJPG(p))
         {
             QImage img = loadJPEG(p, id);
             if (!img.isNull()) return img;
         }
-
-        // TODO PNG Loader
+        else if (isPNG(p))
+        {
+            QImage img = loadPNG(p, id);
+            if (!img.isNull()) return img;
+        }
 
         // otherwise use Qt to load
         QImageReader ir(QSTR(p));
@@ -291,7 +305,8 @@ struct FSFiles: public FSI, FSITraits
     }
 
     QImage loadWebp(const string& path) const;
-    QImage loadJPEG(const string& path, Name& n) const;
+    QImage loadJPEG(const string& path, const Name&) const;
+    QImage loadPNG(const string& path, const Name&) const;
 
 protected:
 

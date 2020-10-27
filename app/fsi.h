@@ -33,7 +33,7 @@
 #include "qdefs.h"
 #include "cutils.h"
 #include "strutils.h"
-#include "filter.h"
+#include "levelfilter.h"
 
 #define TAG_FSI  "FSI, "
 
@@ -141,8 +141,10 @@ struct FSI
 
     struct Name
     {
-        string _name;
-        int    _orient = 0;
+        string          _name;
+        int             _orient = 0;
+        bool            _autolevel;
+        
 
         Name(const string& name) : _name(name) {}
     };
@@ -170,6 +172,28 @@ struct FSI
     virtual QImage loadThumb(const string& ix, int w, int h) = 0;
 
     string              _baseDir;
-    PixelFilter         _filter;
+
+    static QImage makeImage(RawPixels* rp, const Name* id)
+    {
+        if (id && id->_autolevel) levelFilter(rp);
+        
+        return QImage(rp->_data,
+                      rp->_w,
+                      rp->_h,
+                      (rp->_pixelSize == 3 ? QImage::Format_RGB888 :
+                       QImage::Format_RGB32),
+                      &imageCleanup, rp->_data);
+    }
+
+protected:
+    
+
+    static void imageCleanup(void* info)
+    {
+        //LOG1(TAG_RESAMPLE, "deleteing image data");
+
+        uint8_t* data = (uint8_t*)info;
+        delete data;
+    }
 
 };

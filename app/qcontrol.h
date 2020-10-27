@@ -43,7 +43,6 @@
 #include "fsfiles.h"
 #include "provider.h"
 #include "permissions.h"
-#include "levelfilter.h"
 
 #define QREGISTER_CONTROL  QREGISTER_SINGLE(QControl)
 
@@ -234,15 +233,7 @@ public:
 
     Q_INVOKABLE void enableLevelFilter(bool v)
     {
-        if (v)
-        {
-            using std::placeholders::_1;
-            _fsFiles._filter = std::bind(&levelFilter, _1);
-        }
-        else
-        {
-            _fsFiles._filter = 0;
-        }
+        _gProvider->_enableLevelFilter = v;
     }
 
 signals:

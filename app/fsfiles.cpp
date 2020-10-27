@@ -34,14 +34,6 @@
 
 //https://cboard.cprogramming.com/c-programming/179287-reading-exif-data-png-file.html
 
-static void imageCleanup(void* info)
-{
-    //LOG1(TAG_RESAMPLE, "deleteing image data");
-
-    uint8_t* data = (uint8_t*)info;
-    delete data;
-}
-
 bool FSFiles::loadThumbJpg(const uchar* data, unsigned int fsize,
                            int rw, int rh,
                            QImage& img)
@@ -133,11 +125,15 @@ bool FSFiles::loadThumbJpg(const uchar* data, unsigned int fsize,
                                dpixelFormat,
                                flags))
             {
-                img = QImage(ddata, dw, dh,
-                             (pixelSize == 3 ? QImage::Format_RGB888 :
-                              QImage::Format_RGB32),
-                             imageCleanup, ddata);
 
+                RawPixels rp;
+                rp._data = ddata;
+                rp._w = dw;
+                rp._h = dh;
+                rp._pixelSize = pixelSize;
+                rp.init();
+                
+                img = makeImage(&rp, 0);
                 ddata = 0; // drop
                 r = true;
             }
@@ -256,7 +252,7 @@ uchar* FSFiles::_loadFile(const string& path, FD::Pos& fsize) const
 
 }
 
-QImage FSFiles::loadJPEG(const string& path, Name& id) const
+QImage FSFiles::loadJPEG(const string& path, const Name& id) const
 {
     QImage img;
     FD::Pos fsize;
@@ -336,22 +332,14 @@ QImage FSFiles::loadJPEG(const string& path, Name& id) const
                                dpixelFormat,
                                flags))
             {
-                if (id._autolevel)
-                {
-                    RawPixels rp;
-                    rp._data = ddata;
-                    rp._size = w*h*pixelSize;
-                    rp._w = w;
-                    rp._h = h;
-                    rp._pixelSize = pixelSize;
-                    levelFilter(&rp);
-                }
+                RawPixels rp;
+                rp._data = ddata;
+                rp._w = w;
+                rp._h = h;
+                rp._pixelSize = pixelSize;
+                rp.init();
                 
-                img = QImage(ddata, w, h,
-                             (pixelSize == 3 ? QImage::Format_RGB888 :
-                              QImage::Format_RGB32),
-                             imageCleanup, ddata);
-                    
+                img = makeImage(&rp, &id);
                 ddata = 0; // drop
             }
             else

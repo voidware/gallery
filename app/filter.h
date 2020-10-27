@@ -9,6 +9,11 @@ struct RawPixels
     int     _w;
     int     _h;
     int     _pixelSize;
+
+    void init()
+    {
+        _size = _w*_h*_pixelSize;
+    }
 };
 
 typedef std::function<bool(RawPixels*)> PixelFilter;

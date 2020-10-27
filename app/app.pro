@@ -31,6 +31,9 @@ LIBS += -L$$EXIFD/libexif/$$LIBDIR -l:libexif.a
 INCLUDEPATH += $$WEBPD
 LIBS += -L$$WEBPD -l:libwebp.a
 
+INCLUDEPATH += $$LIBPNG
+LIBS += -L$$LIBPNG/release -l:libpng.a
+
 LIBS += -L$$LIBZ -l:libz.a
 
 include($$QTEMAIL/email.pri)
@@ -44,7 +47,8 @@ SOURCES += \
     resamplemix.cpp \
     qresample.cpp \
     fsfiles.cpp \
-    permissions.cpp
+    permissions.cpp \
+    fspng.cpp
     
 RESOURCES += qml.qrc
 
