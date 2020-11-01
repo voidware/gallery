@@ -64,6 +64,8 @@ public:
         assert(_fs);
     }
 
+    const char* thumbstr() { return _thumb ? "thumb" : "main"; }
+
     FSI*        _fs;
     bool        _thumb;
     ImgCache    _thumbCache;
@@ -74,52 +76,29 @@ public:
     mutex       _loadLock;
 };
 
-class AsyncImageResponse:
-    public QQuickImageResponse,
-    public QRunnable,
-    public DL<AsyncImageResponse>
+class AsyncImageResponseRunnable: public QObject, public QRunnable
 {
+    Q_OBJECT;
+    
     typedef std::string string;
+
+signals:
+    
+    void done(QImage image);
 
 public:
 
     GalleryProviderBase*    _host;
     QString                 _id;
     QSize                   _requestedSize;
-    QImage                  _img;
-    bool                    _abort = false;
 
-    AsyncImageResponse(GalleryProviderBase* host,
-                       const QString &id, const QSize &requestedSize)
+    AsyncImageResponseRunnable(GalleryProviderBase* host,
+                               const QString &id,
+                               const QSize &requestedSize)
         : _host(host), _id(id), _requestedSize(requestedSize)
     {
-        setAutoDelete(false);
+        LOG4(TAG_PROV "create runnable for ", STRQ(id));
     }
-
-    ~AsyncImageResponse()
-    {
-        //LOG3(TAG_PROV, " ~AsyncImageResponse " << STRQ(_id));
-        remove();
-    }
-
-    QQuickTextureFactory *textureFactory() const override
-    {
-        return QQuickTextureFactory::textureFactoryForImage(_img);
-    }
-
-    void lock() { _host->_loadLock.lock(); }
-    void unlock() { _host->_loadLock.unlock(); }
-
-    bool abort()
-    {
-        if (_abort)
-        {
-            LOG4(TAG_PROV, "ABORT!!");
-        }
-        return _abort;
-    }
-
-#define ABORT if (abort()) { emit finished(); return; }
 
     string makeCacheID(const string& name) const
     {
@@ -131,10 +110,64 @@ public:
         return name + parts.substr(pos);
     }
 
+    void lock() { _host->_loadLock.lock(); }
+    void unlock() { _host->_loadLock.unlock(); }
+
+    QImage loadFull(const string& cid)
+    {
+        ImgCache::CacheItem* ci;
+        QImage img;
+        
+        // in cache?
+        lock();
+        ci = _host->_fullCache.intern(cid);
+        img = ci->_image; // maybe null
+        unlock();
+
+        if (img.isNull())
+        {
+            // need to load, get the loading lock
+            ci->_loading.lock();
+
+            // we have the lock, do we still need to load?
+            lock();
+            ci = _host->_fullCache.intern(cid);
+            img = ci->_image;
+            unlock();
+
+            if (img.isNull())
+            {
+                // load
+                LOG3(TAG_PROV, " loading full image " << cid);
+        
+                // pass in the original ID with qualified '&' options
+                img = _host->_fs->load(STRQ(_id));
+
+                if (!img.isNull())
+                {
+                    LOG4(TAG_PROV, " loaded " << cid << ' ' << img.width() << 'x' << img.height());
+
+                    lock();
+                    ci = _host->_fullCache.intern(cid);
+                    unlock();
+
+                    // we have the lock!
+                    assert(ci && !ci->valid());
+                    
+                    // add to full cache
+                    ci->_image = img;
+                }
+            }
+            
+            ci->_loading.unlock();
+        }
+        return img;
+    }
+
     void run() override
     {
-        ABORT;
-        
+        QImage img;
+
         int width = 0;
         int height = 0;
 
@@ -148,77 +181,68 @@ public:
         string fname = name._name;
         int rw = _requestedSize.width();
         int rh = _requestedSize.height();
-        bool cacheHit = false;
 
         if (rw > 0 && rh > 0)
         {
-            LOG4(TAG_PROV, "request image " << fname << " scaled " << rw << "x" << rh);
+            LOG4(TAG_PROV, _host->thumbstr() << " request " << fname << " scaled " << rw << "x" << rh);
         }
         else
         {
-            LOG4(TAG_PROV, "request image " << fname);
+            LOG4(TAG_PROV, _host->thumbstr() << " request " << fname);
         }
 
         string cid = makeCacheID(fname);
-        
+
         if (_host->_thumb)
         {
+            ImgCache::CacheItem* ci;
+            
             // first look in cache
             lock();
-            _img = _host->_thumbCache.find(cid); 
+            ci = _host->_thumbCache.intern(cid);
+            img = ci->_image; // maybe null
             unlock();
-           
-            cacheHit = !_img.isNull();
-
-            if (!cacheHit)
+            
+            if (img.isNull())
             {
-                // not in cache. try loading as thumb
-                _img = _host->_fs->loadThumb(id, rw, rh);
+                // need to load, get the loading lock
+                ci->_loading.lock();
+
+                // we have the lock, do we still need to load?
+                lock();
+                ci = _host->_thumbCache.intern(cid);
+                img = ci->_image;
+                unlock();
+
+                if (img.isNull())
+                {
+                    // load
+                    img = _host->_fs->loadThumb(id, rw, rh);
+
+                    if (!img.isNull())
+                    {
+                        // assign to cache
+                        // XX ASSUME ci still valid
+                        ci->_image = img;
+                    }
+                    else
+                    {
+                        //fall back to full image
+                        img = loadFull(cid);
+                    }
+                }
+                ci->_loading.unlock();
             }
         }
         else
         {
-            lock();
-            _img = _host->_fullCache.find(cid);
-            unlock();
-           
-            cacheHit = !_img.isNull();
+            img = loadFull(cid);
         }
 
-        // fallback load as full image
-        if (_img.isNull())
+        if (!img.isNull())
         {
-            ABORT;
-
-            LOG3(TAG_PROV, " loading full image " << cid);
-        
-            // pass in the original ID with qualified '&' options
-            _img = _host->_fs->load(STRQ(_id));
-
-            if (!_img.isNull())
-            {
-                assert(!cacheHit);
-
-                // add to full cache
-                lock();
-                bool v = _host->_fullCache.add(cid, _img);
-                unlock();
-
-                if (v)
-                {
-                    LOG4(TAG_PROV, " loaded " << fname << ' ' << _img.width() << 'x' << _img.height());
-                }
-                else
-                {
-                    LOG4(TAG_PROV, fname << " already loaded!");
-                }
-            }
-        }
-
-        if (!_img.isNull())
-        {
-            width = _img.width();
-            height = _img.height();
+            width = img.width();
+            height = img.height();
 
             if (rw > 0 && rh > 0 && (rw != width || rh != height))
             {
@@ -245,51 +269,71 @@ public:
                 if (_host->_thumb)
                 {
                     // low quality
-                    _img = _img.scaled(rw, rh);
+                    img = img.scaled(rw, rh);
                 }
                 else
                 {
                     LOG3(TAG_PROV, "high quality scale of " << fname << ' ' << width << 'x' << height << " to " << rw << "x" << rh << " scale " << s);
 
-                    _img = QResample(_img, rw, rh, &_abort);
-                    
-                    ABORT;
+                    bool abort = false;
+                    img = QResample(img, rw, rh, &abort);
                 }
                
                 width = rw;
                 height = rh;
             }
         }
-        else
+        
+        if (img.isNull())
         {
             LOG1(TAG_PROV, "failed to load " << fname);
         }
 
-        if (_host->_thumb && !_img.isNull() && !cacheHit)
-        {
-            // add to thumb cache
-            lock();
-            bool v = _host->_thumbCache.add(fname, _img);
-            unlock();
+        emit done(img);
+    }
 
-            if (!v)
-            {
-                LOG4(TAG_PROV, fname << " thumb already loaded!");
-            }
-        }
+};
 
-        //if (size) *size = QSize(width, height);
+class AsyncImageResponse: public QQuickImageResponse
+{
+    typedef std::string string;
+
+public:
+
+    GalleryProviderBase*    _host;
+    QString                 _id;
+    QImage                  _img;
+
+    AsyncImageResponse(GalleryProviderBase* host,
+                       const QString &id,
+                       const QSize &requestedSize, QThreadPool* pool)
+        : _host(host), _id(id)
+    {
+        auto runnable = new AsyncImageResponseRunnable(host, id, requestedSize);
+        connect(runnable, &AsyncImageResponseRunnable::done, this, &AsyncImageResponse::handleDone);
+        pool->start(runnable);
+    }
+
+    void handleDone(QImage image)
+    {
+        _img = image;
         emit finished();
     }
 
-
+    QQuickTextureFactory *textureFactory() const override
+    {
+        return QQuickTextureFactory::textureFactoryForImage(_img);
+    }
 };
 
 class GalleryProvider : public GalleryProviderBase
 {
 public:
 
-    GalleryProvider(FSI* fs, bool thumb) : GalleryProviderBase(fs, thumb) {}
+    GalleryProvider(FSI* fs, bool thumb) : GalleryProviderBase(fs, thumb)
+    {
+        LOG3(TAG_PROV, thumbstr() << " Thread pool using " << _pool.maxThreadCount() << " threads");
+    }
 
     static QString combineOption(const QString& id, const QString& opt)
     {
@@ -309,7 +353,7 @@ public:
         {
             // add to request id, if not present
             id = combineOption(reqID, "l");
-            LOG4(TAG_PROV "request ID ", STRQ(id));
+            //LOG4(TAG_PROV "request ID ", STRQ(id));
         }
         else
         {
@@ -317,30 +361,11 @@ public:
         }
         
         AsyncImageResponse *response = 
-            new AsyncImageResponse(this, id, requestedSize);
-        
-        if (!_thumb)
-        {
-            // prevent too many non-thumb threads
-            int n =  _asyncs.size();
-            if (n > 2)
-            {
-                //LOG3(TAG_PROV, " thread count " << n);
+            new AsyncImageResponse(this, id, requestedSize, &_pool);
 
-                for (List::iterator it = _asyncs.begin(); it != _asyncs.end(); ++it)
-                    (*it)._abort = true;
-            }
-        }
-
-        _asyncs.add(response);
-        
-        pool.start(response);
         return response;
     }
 
-    typedef DL<AsyncImageResponse>::List List;
-
-    List _asyncs;
-    QThreadPool pool;
+    QThreadPool _pool;
 };
 

@@ -25,13 +25,15 @@
  */
 
 #include <assert.h>
+#include <string>
 #include "fsfiles.h"
 #include "fd.h"
 #include "png.h"
 
 struct PNGState
 {
-    PNGState(const FSFiles* host) : _host(host) {}
+    PNGState(const FSFiles* host, const std::string& name)
+        : _host(host), _name(name) {}
 
     ~PNGState()
     {
@@ -39,6 +41,7 @@ struct PNGState
     }
     
     const FSFiles*      _host;
+    std::string         _name;
     size_t              _w;
     size_t              _h;
     int                 _channels;
@@ -77,7 +80,7 @@ static void png_info_fn(png_structp png_ptr, png_infop info_ptr)
     if (ps->_color_type == PNG_COLOR_TYPE_RGB ||
         ps->_color_type == PNG_COLOR_TYPE_GRAY)
     {
-        LOG3(TAG_FSI, "png adding alpha filler");
+        LOG4(TAG_FSI, "png adding alpha filler");
         png_set_add_alpha(png_ptr, 0xff, PNG_FILLER_AFTER);
     }
 
@@ -92,11 +95,12 @@ static void png_info_fn(png_structp png_ptr, png_infop info_ptr)
     ps->_channels = png_get_channels(png_ptr, info_ptr);
     ps->_color_type = png_get_color_type(png_ptr, info_ptr);
 
-    LOG4(TAG_FSI "png_info_fn; ", ps->_w << "x" << ps->_h << " chans:" << ps->_channels);
+    LOG4(TAG_FSI "png_info_fn; ", ps->_name << " " << ps->_w << "x" << ps->_h << " chans:" << ps->_channels);
 
-    assert(ps->_channels == 4);
+    assert(ps->_channels == 3 || ps->_channels == 4);
 
-    ps->_stride = ps->_channels * ps->_w;
+    int psize = ps->_channels;
+    ps->_stride = psize * ps->_w;
     ps->_size = ps->_stride * ps->_h;
     ps->_data = new uchar[ps->_size];
 }
@@ -178,7 +182,7 @@ QImage FSFiles::loadPNG(const string& path, const Name& id) const
             {
                 // read here
 
-                PNGState ps(this);
+                PNGState ps(this, path);
 
                 png_set_progressive_read_fn(_png,
                                             (png_voidp)&ps,

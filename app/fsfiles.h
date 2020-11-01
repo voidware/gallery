@@ -231,6 +231,7 @@ struct FSFiles: public FSI, FSITraits
         }
         else if (isPNG(p))
         {
+            //QImage img = loadPNG2(p, id);
             QImage img = loadPNG(p, id);
             if (!img.isNull()) return img;
         }
@@ -307,6 +308,7 @@ struct FSFiles: public FSI, FSITraits
     QImage loadWebp(const string& path) const;
     QImage loadJPEG(const string& path, const Name&) const;
     QImage loadPNG(const string& path, const Name&) const;
+    QImage loadPNG2(const string& path, const Name&) const;
 
 protected:
 

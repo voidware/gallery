@@ -176,12 +176,20 @@ struct FSI
     static QImage makeImage(RawPixels* rp, const Name* id)
     {
         if (id && id->_autolevel) levelFilter(rp);
+
+        QImage::Format f = (QImage::Format)rp->_format;
+
+        if (!f)
+        {
+            // guess based on pixel size
+            f = rp->_pixelSize == 3 ? QImage::Format_RGB888 :
+                QImage::Format_RGB32;
+        }
         
         return QImage(rp->_data,
                       rp->_w,
                       rp->_h,
-                      (rp->_pixelSize == 3 ? QImage::Format_RGB888 :
-                       QImage::Format_RGB32),
+                      f,
                       &imageCleanup, rp->_data);
     }
 

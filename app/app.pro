@@ -48,7 +48,9 @@ SOURCES += \
     qresample.cpp \
     fsfiles.cpp \
     permissions.cpp \
-    fspng.cpp
+    fspng.cpp \
+    lodepng.cpp \
+    fspng2.cpp
     
 RESOURCES += qml.qrc
 
@@ -70,8 +72,8 @@ HEADERS += \
     imgcache.h \
     permissions.h \
     bint.h \
-    filter.h \
-    levelfilter.h 
+    levelfilter.h \
+    lodepng.h
 
 
 DISTFILES += \

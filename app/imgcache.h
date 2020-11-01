@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include <mutex>
+
 #define TAG_CACHE   "image cache, "
 
 struct ImgCache
@@ -48,12 +50,15 @@ struct ImgCache
     {
         string          _id;
         QImage          _image;
+        std::mutex      _loading;
+
+        bool valid() const { return !_image.isNull(); }
 
         ~CacheItem()
         {
             if (!_id.empty())
             {
-                LOG4(TAG_CACHE, "~CacheItem " << _id);
+                LOG5(TAG_CACHE, "~CacheItem " << _id);
             }
         }
 
@@ -77,43 +82,31 @@ struct ImgCache
     int         _lruSize = 0;
     int         _lruSizeMax;
 
-    CacheItem* _find(const string& id)
+    CacheItem* intern(const string& id)
     {
+        CacheItem* ci;
         CacheItem t;
         t._id = id;
         Cache::iterator it = _cache.find(&t);
         t._id.clear(); // debugging
-        if (it == _cache.end()) return 0;
-        return *it;
+        if (it != _cache.end())
+        {
+            ci = *it;
+            _bump(ci); // refresh on access
+        }
+        else
+        {
+            ci = _add(id);
+        }
+        return ci;
     }
 
-    QImage  _get(CacheItem* item)
+    CacheItem* _add(const string& id)
     {
-        if (!item) return QImage(); // null;
-        
-        //LOG4(TAG_CACHE, _name << " cache hit " << id);
-
-        // remove from whereever and replace at back of list
-        item->remove();
-        _lru.add(item);
-
-        return item->_image;
-    }
-
-    QImage  find(const string& id)
-    {
-        return _get(_find(id));
-    }
-
-    bool   add(const string& id, QImage& img)
-    {
-        if (_find(id)) return false; // already present
-        
         CacheItem* it = new CacheItem;
         it->_id = id;
-        it->_image = img;
 
-        if (_lruSize == _lruSizeMax)
+        if (_lruSize >= _lruSizeMax)
         {
             // chuck one
             // oldest at start
@@ -136,6 +129,14 @@ struct ImgCache
         ++_lruSize;
 
         _cache.insert(it);
-        return true;
+        return it;
     }
+
+    void _bump(CacheItem* ci)
+    {
+        // remove from whereever and replace at back of list
+        ci->remove();
+        _lru.add(ci);
+    }
+
 };

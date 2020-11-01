@@ -103,13 +103,12 @@ public:
             int ix = index.row();
             if (ix < size())
             {
-                //assert(ix < (int)_board._tiles.size());                    
-                LOG4("Request for item ", ix);
 
                 switch (role)
                 {
                 case NameRole:
                     {
+                        LOG4("Gmodel, request for full item ", ix);
                         string p("image://provider/");
                         p += idof(ix);
                         return QSTR(p);
@@ -117,6 +116,7 @@ public:
                     break;
                 case ThumbRole:
                     {
+                        LOG4("Gmodel, request for thumb item ", ix);
                         string p("image://thumb/");
                         p += idof(ix);
                         return QSTR(p);
