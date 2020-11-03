@@ -283,17 +283,24 @@ struct FSFiles: public FSI, FSITraits
 
         id._orient = orient;
 
-        if (r.isNull() && isJPG(p))
+        if (r.isNull())
         {
-            // perform scan method to load jpg thumb
-            uchar* data = 0;
-            FD::Pos fsize;
-            data = _loadFile(p, fsize);
-            if (data)
+            if (isJPG(p))
             {
-                LOG3(TAG_FSI, "building jpg thumb for " << p);
-                loadThumbJpg(data, (unsigned int)fsize, w, h, r); // &r
-                delete data;
+                // perform scan method to load jpg thumb
+                uchar* data = 0;
+                FD::Pos fsize;
+                data = _loadFile(p, fsize);
+                if (data)
+                {
+                    LOG3(TAG_FSI, "building jpg thumb for " << p);
+                    loadThumbJpg(data, (unsigned int)fsize, w, h, r); // &r
+                    delete data;
+                }
+            }
+            else if (isPNG(p))
+            {
+                r = loadPNG(p, id, true);
             }
         }
 
@@ -307,12 +314,14 @@ struct FSFiles: public FSI, FSITraits
 
     QImage loadWebp(const string& path) const;
     QImage loadJPEG(const string& path, const Name&) const;
-    QImage loadPNG(const string& path, const Name&) const;
+    QImage loadPNG(const string& path, const Name&, bool thumb = false) const;
     QImage loadPNG2(const string& path, const Name&) const;
+    QImage loadPNGProgressive(const string& path, const Name& id) const;
 
 protected:
 
     uchar* _loadFile(const string& path, FD::Pos& fsize) const;
+    FD _openFile(const string& path) const;
     
     bool loadThumbJpg(const uchar* data, unsigned int fsize,
                       int w, int h, QImage& r);

@@ -228,13 +228,23 @@ bool FSFiles::loadExifThumb(const char* fname, QImage& img, int& orient)
     return r;
 }
 
+FD FSFiles::_openFile(const string& path) const
+{
+    FD fd;
+    if (!fd.open(path.c_str()))
+    {
+        LOG1(TAG_FSI "can't find ", path);
+    }
+    return fd;
+}
+
 uchar* FSFiles::_loadFile(const string& path, FD::Pos& fsize) const
 {
     // NB: caller must delete return data
     uchar* data = 0;
     
-    FD fd;
-    if (fd.open(path.c_str()))
+    FD fd = _openFile(path);
+    if (fd)
     {
         data = fd.readAll(&fsize);
     
@@ -243,13 +253,7 @@ uchar* FSFiles::_loadFile(const string& path, FD::Pos& fsize) const
             LOG1(TAG_FSI "unable to read file ", path);
         }
     }
-    else
-    {
-        LOG1(TAG_FSI "can't find ", path);
-    }
-    
     return data;
-
 }
 
 QImage FSFiles::loadJPEG(const string& path, const Name& id) const
