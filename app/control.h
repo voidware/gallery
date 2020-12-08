@@ -43,7 +43,6 @@ struct Control
     string              _directory;
     string              _startDirectory;
 
-
 };
 
 

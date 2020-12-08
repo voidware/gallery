@@ -31,7 +31,7 @@
 #include "fd.h"
 #include "bint.h"
 
-struct Compare: public FSITraits
+struct CompareNames: public FSITraits
 {
     typedef std::string string;
     
@@ -151,34 +151,65 @@ struct Compare: public FSITraits
     }
 };
 
+struct CompareDates: public FSITraits
+{
+    bool operator()(const FD::FileInfo& a, const FD::FileInfo& b) const
+    {
+        return a._mtime < b._mtime;
+    }
+};
 
 struct FSFiles: public FSI, FSITraits
 {
-    bool getNames(SortOrder sortby) override
+    bool getNames() override
     {
         string d = _baseDir;
         if (d.empty()) d = ".";
 
         _names.clear();
         
-        std::vector<string> fnames;
-        bool v = FD::getDirectory(d.c_str(), fnames);
+        bool v = false;
 
+        if (_ordering == sort_name)
+        {
+            std::vector<string> fnames;
+            bool v = FD::getDirectory(d.c_str(), fnames);
+
+            if (v)
+            {
+                CompareNames c;
+                std::sort(fnames.begin(), fnames.end(), c);
+                
+                // filter names
+                for (auto& i : fnames)
+                {
+                    if (isImageFile(i)) 
+                        _names.emplace_back(Name(i));
+                }
+            }
+        }
+        else if (_ordering == sort_date)
+        {
+            LOG3(TAG_FSI, "sorting by date");
+            std::vector<FD::FileInfo> fnames;
+            bool v = FD::getDirectoryInfo(d.c_str(), fnames);
+
+            if (v)
+            {
+                CompareDates c;
+                std::sort(fnames.begin(), fnames.end(), c);
+                
+                // filter names
+                for (auto& i : fnames)
+                {
+                    if (isImageFile(i._name)) 
+                        _names.emplace_back(Name(i._name));
+                }
+            }
+        }
+        
         if (v)
         {
-            if (sortby == sort_name)
-            {
-                Compare c;
-                std::sort(fnames.begin(), fnames.end(), c);
-            }
-
-            // filter names
-            for (auto& i : fnames)
-            {
-                if (isImageFile(i)) 
-                    _names.emplace_back(Name(i));
-            }
-            
 #ifdef LOGGING
             if (Logged::_logLevel >= 5)
             {

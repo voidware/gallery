@@ -52,17 +52,12 @@ FocusScope
             id: textin
             width: parent.width
 
-            font.pixelSize: 24
-            bottomPadding: 4
+            font.pixelSize: 32
+            //bottomPadding: 4
 
             inputMethodHints: Qt.ImhUrlCharactersOnly 
             placeholderText: "enter directory"
-
-            onAccepted:
-            {
-                console.log("entered", text)
-                app.directory = text
-            }
+            onAccepted: settings.startfolder = text
         }
         
         Rectangle

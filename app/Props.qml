@@ -32,12 +32,11 @@ import com.voidware.myapp 1.0
 
 Item
 {
-    property string startfolder
-
-    property string mailto
-    property string subject
-    property string bcc
-    property string destdir
+    property string startfolder: settings.startfolder
+    property string mailto: settings.mailto
+    property string subject: settings.subject
+    property string bcc: settings.bcc
+    property string destdir: settings.destdir
 
     anchors.margins: 16
 
@@ -51,28 +50,28 @@ Item
         PropInput
         {
             text: startfolder
-            onChanged: startfolder = text
+            onChanged: settings.startfolder = text
         }
 
         PropLabel {text: "mailto" }
         PropInput
         {
             text: mailto
-            onChanged: mailto = text
+            onChanged: settings.mailto = text
         }
 
         PropLabel {text: "Subject" }
         PropInput
         {
             text: subject
-            onChanged: subject = text
+            onChanged: settings.subject = text
         }
 
         PropLabel {text: "BCC" }
         PropInput
         {
             text: bcc
-            onChanged: bcc = text
+            onChanged: settings.bcc = text
         }
         
         //PropLabel { text: "mailfrom" }
@@ -82,7 +81,7 @@ Item
         PropInput
         {
             text: destdir
-            onChanged: destdir = text
+            onChanged: settings.destdir = text
         }
         
     }

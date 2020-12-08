@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Gallery"
-#define MyAppVersion "1.0.8"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "Voidware"
 #define MyAppURL "http://www.voidware.com"
 #define MyAppExeName "Gallery.exe"

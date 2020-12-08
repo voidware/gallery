@@ -29,22 +29,31 @@ import QtQuick.Controls 2.5
 import QtQuick.Window 2.2
 import Qt.labs.settings 1.0
 
-import com.voidware.myapp 1.0
+import QtQuick.Controls.Material 2.3
+//import Fluid.Core 1.0 as FluidCore
+import Fluid.Controls 1.0 as FluidControls
 
 import Email 1.0
+import com.voidware.myapp 1.0
 
-ApplicationWindow
+FluidControls.ApplicationWindow
 {
     id: app
     visible: true
     width: QControl.isMobile() ? Screen.desktopAvailableWidth : Math.min(1024, Screen.desktopAvailableWidth * 6.0)
     height: QControl.isMobile() ? Screen.desktopAvailableHeight : Math.min(1024, Screen.desktopAvailableHeight * 0.90)
 
-    title: "Gallery 1.0.9"
-    
+    title: "Gallery 2.0.0"    
+
     property string directory: settings.startfolder 
     property color bgCol: "#f0f0f0"
     property bool drawerActive: true
+    property bool editorActive: false
+
+    Material.primary: Material.LightBlue
+    Material.accent: Material.Blue
+
+    appBar.maxActionCount: 3
 
     //onDirectoryChanged: console.log("## Directory ", directory);
 
@@ -64,29 +73,61 @@ ApplicationWindow
 
     function view(ix)
     {
-        pagestack.push("Swiper.qml", { "startindex": ix });
-        pagestack.currentItem.forceActiveFocus();
+        pageStack.push("Swiper.qml", { "startindex": ix });
+        pageStack.currentItem.forceActiveFocus();
+    }
+
+    function showSettings()
+    {
+        //console.log("Settings clicked")
+        pageStack.push("SettingsPage.qml",
+        { "startfolder" : "moose" } // settings.startfolder 
+        )
+
+        pageStack.currentItem.forceActiveFocus();
+    }
+
+    function showEditor()
+    {
+        editorActive = !editorActive
+        if (pageStack.currentItem instanceof Swiper)
+        {
+            pageStack.currentItem.controlsVisible = editorActive
+        }
     }
 
     function pop()
     {
-        pagestack.pop()
+        pageStack.pop()
         title = directory
         drawerActive = true
     }
     
-    function sendEmail(img, label)
+    function sendEmail()
     {
-        email.body = label
-        if (settings.mailto) email.mailto = settings.mailto
-        if (settings.subject) email.subject = settings.subject
-        if (settings.bcc) email.bcc = settings.bcc
-        email.open(img);
+        var it = pageStack.currentItem;
+        if (it instanceof Swiper)
+        { 
+            it = it.theitem
+            if (it && it.theimage)
+            {
+                it.theimage.grabToImage(function(res) 
+                {
+                    //app.sendEmail(res.image, theitem.label);
+                    email.body = it.label
+                    if (settings.mailto) email.mailto = settings.mailto
+                    if (settings.subject) email.subject = settings.subject
+                    if (settings.bcc) email.bcc = settings.bcc
+                    email.open(res.image);
+                });
+            }
+        }
     }
 
     function copyDest(name)
     {
-        QControl.copyFile(name, settings.destdir);
+        var d = settings.destdir;
+        if (d.length > 0) QControl.copyFile(name, d);
     }
 
     function saveForEmail(img)
@@ -94,11 +135,78 @@ ApplicationWindow
         email.save(img);
     }
 
-    StackView
+    initialPage: mainpage
+
+    FluidControls.Page 
     {
-        id: pagestack
-        anchors.fill: parent
-        initialItem: Gallery {}
+        id: mainpage
+        title: "Main Page"
+
+        x: navDrawer.modal ? 0 : navDrawer.position * navDrawer.width
+        width: parent.width - x
+
+        actions: 
+        [
+            FluidControls.Action {
+                text: qsTr("Email")
+                icon.source: FluidControls.Utils.iconUrl("communication/email")
+                toolTip: qsTr("Email Picture")
+                onTriggered: sendEmail()
+            },
+            FluidControls.Action {
+                text: qsTr("Edit")
+                icon.source: FluidControls.Utils.iconUrl("image/edit")
+                toolTip: qsTr("Show Editor")
+                onTriggered: showEditor()
+            },
+            FluidControls.Action {
+                text: qsTr("Settings")
+                icon.source: FluidControls.Utils.iconUrl("action/settings")
+                toolTip: qsTr("Settings")
+                hoverAnimation: true
+                onTriggered: showSettings()
+            }
+        ]
+
+        leftAction: FluidControls.Action {
+            icon.source: FluidControls.Utils.iconUrl("navigation/menu")
+            visible: navDrawer.modal
+            onTriggered: navDrawer.visible ? navDrawer.close() : navDrawer.open()
+        }
+
+        Gallery 
+        {
+            anchors
+             {
+                 fill: parent
+                 leftMargin: 4
+                 rightMargin: 4
+             }
+        }
+    }
+
+    FluidControls.NavigationDrawer
+    {
+        id: navDrawer
+        //width: 0.66 * app.width
+        //height: app.height
+        //dragMargin: 32
+        //interactive: drawerActive
+
+        readonly property bool mobileAspect: true // app.width < 1000
+
+        modal: mobileAspect
+        interactive: mobileAspect
+        position: mobileAspect ? 0.0 : 1.0
+        visible: !mobileAspect
+
+        /*
+        Props
+        {
+            id: props
+            anchors.fill: parent
+        }
+        */
     }
 
     Email 
@@ -116,30 +224,16 @@ ApplicationWindow
         property alias width: app.width
         property alias height: app.height
 
-        property alias startfolder: props.startfolder
-
+        property string startfolder
+        
         // email
-        property alias mailto: props.mailto
-        property alias subject: props.subject
-        property alias bcc: props.bcc
+        property string mailto
+        property string subject
+        property string bcc
 
         // files
-        property alias destdir: props.destdir
+        property string destdir
 
     }
 
-    Drawer
-    {
-        id: drawer
-        width: 0.66 * app.width
-        height: app.height
-        dragMargin: 32
-        interactive: drawerActive
-
-        Props
-        {
-            id: props
-            anchors.fill: parent
-        }
-    }
 }

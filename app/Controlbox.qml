@@ -33,28 +33,37 @@ import com.voidware.myapp 1.0
 
 Rectangle
 {
-    implicitHeight: 0
     property alias gamma: gammaslider.value
     property alias sharpen: sharpslider.value
+    property int margin: 16
+    
+    implicitHeight: grid.implicitHeight + margin*2
 
+    /*
     Item
     {
-        anchors.fill: parent
-        anchors.margins: 16
+        id: box
+        width: parent.width - margin*2
+        implicitHeight: grid.implicitHeight + margin*2
+        anchors.leftMargin: margin
+        */
 
         GridLayout
         {
+            id: grid
             columns: 3
             columnSpacing: 8
             rowSpacing: 8
-            width: parent.width
+            width: parent.width - margin*2
+
+            anchors.centerIn: parent
             
             Label
             {
                 //Layout.fillHeight: true
                 //Layout.fillWidth: true
-                Layout.preferredHeight: implicitHeight
-                Layout.preferredWidth: implicitWidth
+                //Layout.preferredHeight: implicitHeight
+                //Layout.preferredWidth: implicitWidth
                 background: Rectangle { border.color: "red" }
                 font.pixelSize: 24
                 padding: 4
@@ -74,7 +83,7 @@ Rectangle
             {
                 //Layout.fillHeight: true
                 //Layout.fillWidth: true
-                Layout.preferredHeight: implicitHeight
+                //Layout.preferredHeight: implicitHeight
                 Layout.preferredWidth: 50
                 horizontalAlignment: Text.AlignHCenter
                 background: Rectangle { border.color: "black" }
@@ -85,8 +94,8 @@ Rectangle
 
             Label
             {
-                Layout.preferredHeight: implicitHeight
-                Layout.preferredWidth: implicitWidth
+                //Layout.preferredHeight: implicitHeight
+                //Layout.preferredWidth: implicitWidth
                 background: Rectangle { border.color: "red" }
                 font.pixelSize: 24
                 padding: 4
@@ -97,12 +106,12 @@ Rectangle
                 id: sharpslider
                 from: 0
                 to: 2.0
-                Layout.fillHeight: true
+                //Layout.fillHeight: true
                 Layout.fillWidth: true
             }
             Label
             {
-                Layout.preferredHeight: implicitHeight
+                //Layout.preferredHeight: implicitHeight
                 Layout.preferredWidth: 50
                 horizontalAlignment: Text.AlignHCenter
                 background: Rectangle { border.color: "black" }
@@ -111,6 +120,6 @@ Rectangle
                 text: sharpslider.value.toFixed(2);
             }
         }
-    }
+    //}
 }
 

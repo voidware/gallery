@@ -158,7 +158,8 @@ struct FSI
         sort_date,
     };
 
-    Names _names;
+    Names                 _names;
+    FSI::SortOrder        _ordering = FSI::sort_name;
 
     Name& namefor(const string& ix) 
     {
@@ -167,7 +168,7 @@ struct FSI
         return _names[i];
     }
 
-    virtual bool getNames(SortOrder sort = sort_name)  = 0;
+    virtual bool getNames()  = 0;
     virtual QImage load(const string& ix) = 0;
     virtual QImage loadThumb(const string& ix, int w, int h) = 0;
 

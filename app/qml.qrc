@@ -9,6 +9,7 @@
         <file>PropLabel.qml</file>
         <file>PropInput.qml</file>
         <file>Controlbox.qml</file>
+        <file>SettingsPage.qml</file>
         <file>unsharp.glsl</file>
     </qresource>
 </RCC>

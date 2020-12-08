@@ -27,6 +27,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.13
 import QtQml 2.12
+import QtQuick.Layouts 1.14
 
 import com.voidware.myapp 1.0
 
@@ -35,6 +36,7 @@ Item
     id: swiper
     property alias startindex: swipe.currentIndex
     property var theitem;
+    property bool controlsVisible: false
     
     focus:true
 
@@ -48,14 +50,16 @@ Item
         swipe.decrementCurrentIndex();
     }
 
-    SplitView
+    ColumnLayout
     {
         anchors.fill: parent
-        orientation: Qt.Vertical
+        //orientation: Qt.Vertical
+        spacing: 0
         
         Item
         {
-            SplitView.fillHeight: true
+            Layout.fillHeight: true
+            Layout.fillWidth: true
 
             MouseArea
             {
@@ -99,8 +103,10 @@ Item
 
         Controlbox 
         {
+            visible: controlsVisible
             id: controlbox
-            SplitView.maximumHeight: swiper.height/4
+            Layout.fillWidth: true
+            //Layout.preferredHeight: implicitHeight
         }
     }
 
@@ -141,15 +147,6 @@ Item
         else if (event.key == Qt.Key_Home) 
         {
             swipe.currentItem.item.naturalSize()
-        }
-        else if (event.key == Qt.Key_F1) 
-        {
-            if (theitem) 
-            {
-                theitem.theimage.grabToImage(function(res) {
-                    app.sendEmail(res.image, theitem.label);
-                });
-            }
         }
         else if (event.key == Qt.Key_F2) 
         {

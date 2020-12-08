@@ -60,6 +60,11 @@ void QControl::handleOptions(int argc, char** argv)
             }
             else if ((arg = Opt::isOptArg(argv + i, "-h")) != 0)
                 _uiOptionHeight = atoi(arg);
+            else if (Opt::isOpt(argv[i], "-date"))
+            {
+                _fsFiles._ordering = FSI::sort_date;
+                LOG3("ordering by date", "");
+            }
             else
             {
                 LOG("unknown option: ", argv[i]);

@@ -34,6 +34,14 @@
 #include <QIcon>
 #include <QQuickStyle>
 
+#ifdef QT_STATIC
+#include <QQmlExtensionPlugin>
+Q_IMPORT_PLUGIN(FluidCorePlugin)
+Q_IMPORT_PLUGIN(FluidControlsPlugin)
+Q_IMPORT_PLUGIN(FluidControlsPrivatePlugin)
+Q_IMPORT_PLUGIN(FluidTemplatesPlugin)
+#endif
+
 #include "qcontrol.h"
 #include "opt.h"
 
@@ -78,8 +86,8 @@ int main(int argc, char *_argv[])
     extern void registerEmail();
     registerEmail();
 
-    //QString style = QQuickStyle::name();
-    //if (style.isEmpty()) QQuickStyle::setStyle("Imagine");
+    QString style = QQuickStyle::name();
+    if (style.isEmpty()) QQuickStyle::setStyle("Material");
 
     GalleryModel galleryModel(qc, &qc->_fsFiles);
     qc->_gModel = &galleryModel;
@@ -91,7 +99,11 @@ int main(int argc, char *_argv[])
     // provider is now owned by engine
     engine.addImageProvider("provider", qc->createGalleryProvider());
     engine.addImageProvider("thumb", qc->createThumbProvider());
-
+	
+    QString s = QCoreApplication::applicationDirPath() + "/../../fluid/qml";
+    qDebug() << "Adding QML path " << s << "\n";
+    engine.addImportPath(s);
+	
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     if (engine.rootObjects().isEmpty()) return -1;

@@ -1,0 +1,4 @@
+QMAKE_PRL_BUILD_DIR = D:/hugh/apps/gallery/fluid/src/imports/effects
+QMAKE_PRO_INPUT = effects.pro
+QMAKE_PRL_TARGET = ""
+QMAKE_PRL_CONFIG = lex yacc debug depend_includepath testcase_targets import_plugins import_qpa_plugin windows prepare_docs qt_docs_targets qt_build_extra file_copies qmake_use warn_on link_prl debug_and_release debug_and_release_target precompile_header shared shared no_plugin_manifest win32 mingw gcc sse2 aesni sse3 ssse3 sse4_1 sse4_2 compile_examples force_debug_info largefile precompile_header rdrnd shani x86SimdAlways prefix_build force_independent utf8_source create_prl link_prl no_private_qt_headers_warning QTDIR_build qt_example_installs exceptions_off testcase_exceptions debug DebugBuild Debug build_pass install_qml_files debug DebugBuild Debug build_pass no_plist exclusive_builds debug_info no_autoqmake

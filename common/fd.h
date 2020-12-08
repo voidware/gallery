@@ -120,6 +120,13 @@ struct FD: public FDBase
 {
     Pos                 _pos;
 
+    struct FileInfo
+    {
+        std::string     _name;
+        time_t          _mtime = 0;
+        Pos             _size = 0;
+    };
+
     FD() { _init(); }
 
     ~FD() { close(); }
@@ -243,8 +250,53 @@ struct FD: public FDBase
         {
             struct dirent *ep;
             while ((ep = readdir(dp)) != 0) files.push_back(ep->d_name);
+            closedir(dp);
         }
         return res;
+    }
+
+    static bool getDirectoryInfo(const char* path,
+                                 std::vector<FileInfo>& files)
+    {
+        bool res = false;
+        
+        DIR* dp = opendir(path);
+        res = dp != 0;
+        if (res)
+        {
+            // path/foo
+            int pl = strlen(path);
+            char* namebuf = new char[pl + 1 + 256 + 1];
+            strcpy(namebuf, path);
+            char* pp = namebuf + pl;
+            *pp++ = '/';
+            
+            struct dirent *ep;
+            while ((ep = readdir(dp)) != 0) 
+            {
+                FileInfo fi;
+                fi._name = ep->d_name;
+
+                struct stat sbuf;
+                strcpy(pp, ep->d_name);
+                if (stat(namebuf, &sbuf) == 0)
+                {
+                    fi._mtime = sbuf.st_mtime;
+                    fi._size = sbuf.st_size;
+                    //printf("dir info '%s', %d\n", ep->d_name, (int)fi._mtime);
+                }
+                else
+                {
+                    printf("Cannot stat '%s'\n", ep->d_name);
+                }
+
+                files.push_back(fi);
+            }
+            closedir(dp);
+
+            delete [] namebuf;
+        }
+        return res;        
     }
 
     // compliance
