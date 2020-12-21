@@ -96,11 +96,16 @@ bool Device::hasTouchScreen() const
 #if defined(Q_OS_ANDROID)
     return true;
 #else
+
+#if QT_VERSION < 0x060000    
+    // XXX qt6??
     const auto devices = QTouchDevice::devices();
     for (const QTouchDevice *dev : devices) {
         if (dev->type() == QTouchDevice::TouchScreen)
             return true;
     }
+#endif
+    
     return false;
 #endif
 }

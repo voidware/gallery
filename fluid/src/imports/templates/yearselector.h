@@ -17,8 +17,8 @@
 
 #include <QDate>
 #include <QQuickItem>
+#include "yearmodel.h"
 
-class YearModel;
 
 class YearSelector : public QQuickItem
 {

@@ -36,7 +36,7 @@ MimeTypeManager::MimeTypeManager(const QString& filePath)
         // Split the current entry and filter invalid entries
         QStringList components = currentLine.split("\t", QString::SkipEmptyParts);
         if (components.count() != 2) {
-            qWarning() << "Invalid entry.";
+            qWarning() << "Invalid entry '" << currentLine << "'";
             continue;
         }
 

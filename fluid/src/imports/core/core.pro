@@ -4,6 +4,9 @@ IMPORT_VERSION = 1.0
 
 QT += qml quick
 
+## regexp in Qt6
+#QT += core5compat
+
 HEADERS += \
     $$files($$PWD/*.h)
 

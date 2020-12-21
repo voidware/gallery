@@ -152,7 +152,8 @@ void Email::open(const QVariant& imgvar)
     //printf("11## email url '%s'\n", email.toStdString().c_str());
 
     // Create temporary file and open it in the user's default email composer
-    QString tmpFilePath = QDir::tempPath().append(QString("/ComposedEmail-%1.eml").arg(QDateTime::currentDateTime().toTime_t()));
+    qint64 tnow = QDateTime::currentDateTime().toSecsSinceEpoch();
+    QString tmpFilePath = QDir::tempPath().append(QString("/ComposedEmail-%1.eml").arg(tnow));
     QFile tmpFile(tmpFilePath);
     if (tmpFile.open(QIODevice::WriteOnly) == false) 
     {

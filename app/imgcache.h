@@ -68,7 +68,7 @@ struct ImgCache
 
     struct Compare
     {
-        bool operator()(const CacheItem* a, const CacheItem* b)
+        bool operator()(const CacheItem* a, const CacheItem* b) const
         {
             return *a < *b;
         }

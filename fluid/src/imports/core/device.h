@@ -21,7 +21,10 @@
 #include <QQmlEngine>
 #include <QGuiApplication>
 #include <QScreen>
-#include <QTouchDevice>
+
+#if QT_VERSION < 0x060000
+#include <QTouchDevice>  //qt6 gone
+#endif
 
 class Device : public QObject
 {

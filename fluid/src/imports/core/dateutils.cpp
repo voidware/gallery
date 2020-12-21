@@ -20,13 +20,32 @@ DateUtils::DateUtils(QObject *parent)
 {
 }
 
+static QString dateShortForm(const QDate& date)
+{
+#if QT_VERSION >= 0x060000
+    return QLocale::system().toString(date, QLocale::ShortFormat);
+#else
+    return date.toString(Qt::DefaultLocaleShortDate);
+#endif
+}
+
+static QString timeShortForm(const QDateTime& time)
+{
+#if QT_VERSION >= 0x060000
+    return QLocale::system().toString(time, QLocale::ShortFormat);
+#else    
+    return time.toString(Qt::DefaultLocaleShortDate);
+#endif    
+}
+
 QString DateUtils::formattedDate(const QDate &date) const
 {
     if (date == QDate::currentDate())
         return tr("Today (%1)").arg(dayOfWeek(date));
     else if (date == QDate::currentDate().addDays(1))
         return tr("Tomorrow (%1)").arg(dayOfWeek(date));
-    return date.toString(Qt::DefaultLocaleShortDate);
+    
+    return dateShortForm(date);
 }
 
 QString DateUtils::formatDuration(qlonglong duration, DurationFormat format,
@@ -90,7 +109,8 @@ QString DateUtils::friendlyTime(const QDateTime &time, bool standalone) const
         return tr("1 day ago");
     else if (days <= 10)
         return tr("%1 days ago").arg(days);
-    QString string = time.toString(Qt::DefaultLocaleShortDate);
+
+    QString string = timeShortForm(time);
     return standalone ? string : tr("on %1").arg(string);
 }
 

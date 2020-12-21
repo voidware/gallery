@@ -13,6 +13,7 @@
  */
 
 #include <QtQml/qqml.h>
+#include <QRegExp>
 
 #include "coreplugin.h"
 #include "coreutils.h"
