@@ -29,7 +29,6 @@
 #include <assert.h>
 #include "fsfiles.h"
 #include "fd.h"
-#include "webp/decode.h"
 #include "levelfilter.h"
 
 //https://cboard.cprogramming.com/c-programming/179287-reading-exif-data-png-file.html
@@ -361,51 +360,6 @@ QImage FSFiles::loadJPEG(const string& path, const Name& id) const
 
         if (txBuf) tjFree(txBuf); // data  == txbuf
         else delete [] data;
-    }
-    return img;
-}
-
-QImage FSFiles::loadWebp(const string& path) const
-{
-    QImage img;
-    FD::Pos fsize;
-    uchar* data = _loadFile(path, fsize);
-
-    if (data)
-    {
-        int w, h;
-        int v = WebPGetInfo(data, fsize, &w, &h);
-        if (v)
-        {
-            LOG3(TAG_FSI " WEBP ", path << ", " << w << "x" << h);
-
-            img = QImage(w, h, QImage::Format_ARGB32);
-            if (!img.isNull())
-            {
-                uchar* bits = img.bits();
-                int sz = img.sizeInBytes();
-                int stride = img.bytesPerLine();
-                uint8_t* b =  WebPDecodeBGRAInto(data, fsize,
-                                                 bits,
-                                                 sz,
-                                                 stride);
-                if (b)
-                {
-                    LOG3(TAG_FSI " decoded WEBP ", path);
-                }
-                else
-                {
-                    LOG1(TAG_FSI "WEBP decode error", path);
-                    img = QImage(); // drop
-                }
-            }
-        }
-        else
-        {
-            LOG1(TAG_FSI " Unable to decode WEBP ", path);
-        }
- 
-        delete data;
     }
     return img;
 }

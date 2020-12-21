@@ -16,7 +16,8 @@ include($$PROJ/app.pri)
 
 ### ////////////////// SOURCES ///////////////////////////////////////////
 
-JPEGD = $$PROJ/tools/libjpeg-turbo
+#JPEGD = $$PROJ/tools/libjpeg-turbo
+JPEGD = $$PROJ/tools/mozjpeg
 EXIFD = $$PROJ/tools/libexif
 QTEMAIL = $$PROJ/qt-email
 WEBPD = $$PROJ/tools/libwebp-1.1.0/src
@@ -50,7 +51,7 @@ SOURCES += \
     permissions.cpp \
     fspng.cpp \
     lodepng.cpp \
-    fspng2.cpp
+    fswebp.cpp 
     
 RESOURCES += qml.qrc
 

@@ -252,7 +252,7 @@ struct FSFiles: public FSI, FSITraits
 
         if (isWEBP(p))
         {
-            QImage img = loadWebp(p);
+            QImage img = loadWebp(p, id);
             if (!img.isNull()) return img;
         }
         else if (isJPG(p))
@@ -333,6 +333,10 @@ struct FSFiles: public FSI, FSITraits
             {
                 r = loadPNG(p, id, true);
             }
+            else if (isWEBP(p))
+            {
+                r = loadWebp(p, id, true);
+            }
         }
 
         if (!r.isNull() && id._orient)
@@ -343,11 +347,11 @@ struct FSFiles: public FSI, FSITraits
         return r;
     }
 
-    QImage loadWebp(const string& path) const;
     QImage loadJPEG(const string& path, const Name&) const;
     QImage loadPNG(const string& path, const Name&, bool thumb = false) const;
-    QImage loadPNG2(const string& path, const Name&) const;
+
     QImage loadPNGProgressive(const string& path, const Name& id) const;
+    QImage loadWebp(const string& path, const Name& id, bool thumb = false) const;
 
 protected:
 

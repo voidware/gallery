@@ -43,6 +43,11 @@ Item
     // see
     //https://doc.qt.io/qt-5/qquickimageprovider.html
 
+    Component.onDestruction:
+    {
+        QControl.tileDestroyed(m.thumb)
+    }
+
     Item
     {
         anchors.fill: parent

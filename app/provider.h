@@ -366,6 +366,15 @@ public:
         return response;
     }
 
+    void notifyNotNeeded(const QString& reqID)
+    {
+        if (_thumb)
+        {
+            string id = STRQ(reqID);
+            LOG4(TAG_PROV "Tile Destroyed ", id);
+        }
+    }
+
     QThreadPool _pool;
 };
 
