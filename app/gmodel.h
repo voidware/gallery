@@ -60,6 +60,7 @@ public:
         ThumbRole = Qt::UserRole + 2,
         LabelRole = Qt::UserRole + 3,
         PathRole = Qt::UserRole + 4,
+        IDRole = Qt::UserRole + 5,
     };
 
     GalleryModel(Control* control, FSI* fsi) : QAbstractListModel(0) 
@@ -127,6 +128,9 @@ public:
                     break;
                 case PathRole:
                     return QSTR(makePath(_fs->_baseDir, nameof(ix)));
+                    break;
+                case IDRole:
+                    return QSTR(idof(ix));
                     break;
                 default:
                     LOG3("Request for item ", ix << " unknown role " << role);
@@ -197,6 +201,7 @@ protected:
         roles[ThumbRole] = "thumb";
         roles[LabelRole] = "label";
         roles[PathRole] = "path";
+        roles[IDRole] = "id";
         return roles;
     }
 };

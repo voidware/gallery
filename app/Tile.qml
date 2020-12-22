@@ -45,7 +45,7 @@ Item
 
     Component.onDestruction:
     {
-        QControl.tileDestroyed(m.thumb)
+        QControl.tileDestroyed(m.id)
     }
 
     Item

@@ -239,7 +239,7 @@ public:
     Q_INVOKABLE void tileDestroyed(const QString& qid)
     {
         if (_gThumbProvider)
-            _gThumbProvider->notifyNotNeeded(qid);
+            _gThumbProvider->notNeeded(qid);
     }
 
 

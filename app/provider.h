@@ -43,7 +43,7 @@
 #define TAG_PROV  "provider, "
 
 #define FULL_CACHE_SIZE  5
-#define THUMB_CACHE_SIZE 1024
+#define THUMB_CACHE_SIZE 4096
 
 class GalleryProviderBase : public QQuickAsyncImageProvider
 {
@@ -76,7 +76,8 @@ public:
     mutex       _loadLock;
 };
 
-class AsyncImageResponseRunnable: public QObject, public QRunnable
+class AsyncImageResponseRunnable:
+    public QObject, public QRunnable, public DL<AsyncImageResponseRunnable>
 {
     Q_OBJECT;
     
@@ -91,13 +92,19 @@ public:
     GalleryProviderBase*    _host;
     QString                 _id;
     QSize                   _requestedSize;
+    bool                    _abort = false;
 
     AsyncImageResponseRunnable(GalleryProviderBase* host,
                                const QString &id,
                                const QSize &requestedSize)
         : _host(host), _id(id), _requestedSize(requestedSize)
     {
-        LOG4(TAG_PROV "create runnable for ", STRQ(id));
+        _init();
+    }
+
+    ~AsyncImageResponseRunnable()
+    {
+        _uninit();
     }
 
     string makeCacheID(const string& name) const
@@ -166,6 +173,13 @@ public:
 
     void run() override
     {
+
+        if (_abort)
+        {
+            LOG3(TAG_PROV, "aborting thread " << STRQ(_id));
+            return;
+        }
+        
         QImage img;
 
         int width = 0;
@@ -208,27 +222,30 @@ public:
                 // need to load, get the loading lock
                 ci->_loading.lock();
 
-                // we have the lock, do we still need to load?
-                lock();
-                ci = _host->_thumbCache.intern(cid);
-                img = ci->_image;
-                unlock();
-
-                if (img.isNull())
+                if (!_abort)
                 {
-                    // load
-                    img = _host->_fs->loadThumb(id, rw, rh);
+                    // we have the lock, do we still need to load?
+                    lock();
+                    ci = _host->_thumbCache.intern(cid);
+                    img = ci->_image;
+                    unlock();
 
-                    if (!img.isNull())
+                    if (img.isNull())
                     {
-                        // assign to cache
-                        // XX ASSUME ci still valid
-                        ci->_image = img;
-                    }
-                    else
-                    {
-                        //fall back to full image
-                        img = loadFull(cid);
+                        // load
+                        img = _host->_fs->loadThumb(id, rw, rh);
+
+                        if (!img.isNull())
+                        {
+                            // assign to cache
+                            // XX ASSUME ci still valid
+                            ci->_image = img;
+                        }
+                        else
+                        {
+                            //fall back to full image
+                            img = loadFull(cid);
+                        }
                     }
                 }
                 ci->_loading.unlock();
@@ -292,6 +309,12 @@ public:
         emit done(img);
     }
 
+
+private:
+
+    void _init();
+    void _uninit();
+
 };
 
 class AsyncImageResponse: public QQuickImageResponse
@@ -312,6 +335,8 @@ public:
         auto runnable = new AsyncImageResponseRunnable(host, id, requestedSize);
         connect(runnable, &AsyncImageResponseRunnable::done, this, &AsyncImageResponse::handleDone);
         pool->start(runnable);
+
+        //LOG3(TAG_PROV, "Active threads: " << pool->activeThreadCount() << " Runnables:" << AsyncImageResponseRunnable::_all.size());
     }
 
     void handleDone(QImage image)
@@ -347,7 +372,6 @@ public:
     QQuickImageResponse* requestImageResponse(const QString &reqID,
                                               const QSize &requestedSize) override
     {
-
         QString id;
         if (_enableLevelFilter)
         {
@@ -366,15 +390,62 @@ public:
         return response;
     }
 
-    void notifyNotNeeded(const QString& reqID)
+    typedef AsyncImageResponseRunnable::List List;
+
+    void notNeeded(const QString& id)
     {
-        if (_thumb)
+        if (!_thumb) return;
+        
+        bool v = false;
+
+        _allLock.lock();
+        for (List::iterator it = _all.begin(); it != _all.end(); ++it)
         {
-            string id = STRQ(reqID);
-            LOG4(TAG_PROV "Tile Destroyed ", id);
+            AsyncImageResponseRunnable& r = *it;
+            if (r._id == id)
+            {
+                r._abort = true;
+                //LOG3(TAG_PROV, "signal abort thread " << STRQ(id));
+                v = true;
+            }
         }
+        _allLock.unlock();
+
+        if (!v)
+        {
+            LOG4(TAG_PROV, "unable to abort thread " << STRQ(id));
+        }
+    }
+    
+    void addRunnable(AsyncImageResponseRunnable* r)
+    {
+        LOG4(TAG_PROV "create runnable for ", STRQ(r->_id));
+        std::lock_guard<std::mutex> lock(_allLock);
+        _all.add(r);
+    }
+    
+    void removeRunnable(AsyncImageResponseRunnable* r)
+    {
+        // The destructor already does this, but we need to remove
+        // inside a lock
+        std::lock_guard<std::mutex> lock(_allLock);
+        r->remove();
     }
 
     QThreadPool _pool;
+    AsyncImageResponseRunnable::List  _all;
+    mutex       _allLock;
 };
 
+inline void AsyncImageResponseRunnable::_init()
+{
+    GalleryProvider* g = (GalleryProvider*)_host;
+    g->addRunnable(this);
+}
+
+inline void AsyncImageResponseRunnable::_uninit()
+{
+    GalleryProvider* g = (GalleryProvider*)_host;
+    g->removeRunnable(this);
+
+}
