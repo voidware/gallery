@@ -15,9 +15,8 @@ enter directory in top line entry box
 * home/end = top and bottom in gallery view
 
 ### Picture View
-* F1 = email current picture view
 * esc = close image
-* c = copy image to destdir (defined in side panel)
+* c = copy image to destdir (defined in settings panel)
 
 ### Mouse
 * Scrollwheel to zoom
@@ -25,16 +24,9 @@ enter directory in top line entry box
 * left button pans
 * double click to close image
 
-### Panels
-* Left slide panel
-  Settings.
-* Bottom slide panel
-  nondestructive image adjustment (gamma & sharpen)
-
-
 ## Building
 
-Dependencies Qt5.13.X or Qt5.14.X
+Dependencies Qt5.14.X
 
 These instructions as for Windows mingw64.
 
@@ -124,17 +116,12 @@ Turns out Qt already has libjpeg-turbo _and_ webp. Which means the loading of im
 
 Gallery wants to make fast thumbnails on the fly, ideally without loading the whole image. For Jpeg, we look for EXIF thumbs, which is nothing to do with libjpg, but often they aren't there. So in that case we perform a high-speed jpeg low-res load. This is done using the libjpeg low-level API supplying all the fast, low-quality flags and 1/8 scaling. You can't do this from the qt image level.
 
-Right now, webp loads the whole image always. So we're no better than the built-in qt image. But, i want to do something similar with webp. not sure how at the moment, but it will be needed.
+Use webp scaling for webp thumbnails. not sure if this more efficient than full load & scale, but at least the webp lib has the problem at the low level. In theory, it should be better.
 
 Does webp have exif? Well it appears the container format can have meta data, which _might_ have exif and _might_ have a thumb. However, I've not seen any image program that puts it in!
 
-So one idea later is to have an option to actually insert the EXIF + thumb into an existing webp _without_ changing the image bits at all. Ie non-destructive with respect to the image.
+uses libpng directly. fast thumbnails can be generated providing the png is "interlaced", which is the same idea as progressive jpeg. However, most pngs are not, in which case the whole image must be loaded just for the thumbnail :-/
 
-Also we get to use the latest webp lib, which supports a "nearly lossless" format. Maybe add some re-compress options later. eg convert to lossless/nearly lossless etc.
-
-Plan to add libpng as well at some point. The same issues with exif and fast thumbnail apply here too. For some weird reasons EXIF support wasn't added to png until recently, so no one supports it! Have you noticed that PNGs don't have thumbnails. :-/
-
-Maybe have an option to nondestructively add them, either that or some ripping code to fast load a low-res version like we do for jpg. There's also the progressive storage mode for png, which is ideal for thumbnail generation. Although this is a compression choice and we don't want to have to lossless recompress images.
 
 
 
