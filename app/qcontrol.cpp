@@ -62,8 +62,7 @@ void QControl::handleOptions(int argc, char** argv)
                 _uiOptionHeight = atoi(arg);
             else if (Opt::isOpt(argv[i], "-date"))
             {
-                _fsFiles._ordering = FSI::sort_date;
-                LOG3("ordering by date", "");
+                _orderByOverride = FSI::sort_date;
             }
             else
             {

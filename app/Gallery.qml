@@ -25,7 +25,7 @@
  */
 
 import QtQuick 2.12
-import QtQuick.Controls 2.5
+import QtQuick.Controls 2.14
 
 import com.voidware.myapp 1.0
 
@@ -46,26 +46,51 @@ FocusScope
     {
         width: parent.width
         
-        TextField
+        Row
         {
-            // directory entry bar
-            id: textin
+            id: gcontrols
+            //height: Math.max(textin.height, sortOrder.height)
             width: parent.width
-
-            font.pixelSize: 32
-            //bottomPadding: 4
-
-            inputMethodHints: Qt.ImhUrlCharactersOnly 
-            placeholderText: "enter directory"
-            onAccepted: settings.startfolder = text
-        }
         
+            TextField
+            {
+                // directory entry bar
+                id: textin
+                width: parent.width - sortOrder.width
+
+                font.pixelSize: 32
+                //bottomPadding: 0
+
+                inputMethodHints: Qt.ImhUrlCharactersOnly 
+                placeholderText: "enter directory"
+                onAccepted: settings.startfolder = text
+            }
+
+            ComboBox 
+            {
+                id: sortOrder
+                width: 180
+                height: textin.implicitHeight - 4 // XX hack so shadow aligns
+                
+                //flat: true
+                font.pixelSize: 18
+                currentIndex: settings.sortOrder
+                
+                model: ["Sort Name", "Sort Date"]
+
+                onCurrentIndexChanged:
+                {
+                    settings.sortOrder = currentIndex
+                }
+            }
+        }
+
         Rectangle
         {
             // main gallery area
             color: app.bgCol
             width: parent.width
-            height: gallery.height - textin.height
+            height: gallery.height - gcontrols.height
 
             GridView
             {

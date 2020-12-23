@@ -173,7 +173,7 @@ struct FSFiles: public FSI, FSITraits
         if (_ordering == sort_name)
         {
             std::vector<string> fnames;
-            bool v = FD::getDirectory(d.c_str(), fnames);
+            v = FD::getDirectory(d.c_str(), fnames);
 
             if (v)
             {
@@ -192,7 +192,7 @@ struct FSFiles: public FSI, FSITraits
         {
             LOG3(TAG_FSI, "sorting by date");
             std::vector<FD::FileInfo> fnames;
-            bool v = FD::getDirectoryInfo(d.c_str(), fnames);
+            v = FD::getDirectoryInfo(d.c_str(), fnames);
 
             if (v)
             {

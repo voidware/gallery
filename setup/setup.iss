@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Gallery"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "2.0.0"
 #define MyAppPublisher "Voidware"
 #define MyAppURL "http://www.voidware.com"
 #define MyAppExeName "Gallery.exe"
@@ -35,38 +35,41 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\hugh\apps\gallery\gallery\Gallery.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\D3Dcompiler_47.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\libEGL.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\libgcc_s_seh-1.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\libGLESv2.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\libstdc++-6.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\libwinpthread-1.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\opengl32sw.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\Qt5Core.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\Qt5Gui.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\Qt5Network.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\Qt5Qml.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\Qt5QmlModels.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\Qt5QmlWorkerScript.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\Qt5Quick.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\Qt5QuickControls2.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\Qt5QuickTemplates2.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\Qt5RemoteObjects.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\Qt5Svg.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\Qt5Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\hugh\apps\gallery\gallery\bearer\*"; DestDir: "{app}\bearer"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\hugh\apps\gallery\gallery\iconengines\*"; DestDir: "{app}\iconengines"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\hugh\apps\gallery\gallery\imageformats\*"; DestDir: "{app}\imageformats"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\hugh\apps\gallery\gallery\platforms\*"; DestDir: "{app}\platforms"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\hugh\apps\gallery\gallery\qmltooling\*"; DestDir: "{app}\qmltooling"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\hugh\apps\gallery\gallery\Qt\*"; DestDir: "{app}\Qt"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\hugh\apps\gallery\gallery\QtGraphicalEffects\*"; DestDir: "{app}\QtGraphicalEffects"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\hugh\apps\gallery\gallery\QtQml\*"; DestDir: "{app}\QtQml"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\hugh\apps\gallery\gallery\QtQuick\*"; DestDir: "{app}\QtQuick"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\hugh\apps\gallery\gallery\QtQuick.2\*"; DestDir: "{app}\QtQuick.2"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\hugh\apps\gallery\gallery\styles\*"; DestDir: "{app}\styles"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\gallery\Gallery.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\D3Dcompiler_47.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\libEGL.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\libgcc_s_seh-1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\libGLESv2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\libstdc++-6.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\libwinpthread-1.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\opengl32sw.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\Qt5Core.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\Qt5Gui.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\Qt5Network.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\Qt5Qml.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\Qt5QmlModels.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\Qt5QmlWorkerScript.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\Qt5Quick.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\Qt5QuickControls2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\Qt5QuickTemplates2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\Qt5RemoteObjects.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\Qt5Svg.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\Qt5Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\gallery\bearer\*"; DestDir: "{app}\bearer"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\gallery\iconengines\*"; DestDir: "{app}\iconengines"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\gallery\imageformats\*"; DestDir: "{app}\imageformats"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\gallery\platforms\*"; DestDir: "{app}\platforms"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\gallery\qmltooling\*"; DestDir: "{app}\qmltooling"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\gallery\Qt\*"; DestDir: "{app}\Qt"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\gallery\QtGraphicalEffects\*"; DestDir: "{app}\QtGraphicalEffects"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\gallery\QtQml\*"; DestDir: "{app}\QtQml"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\gallery\QtQuick\*"; DestDir: "{app}\QtQuick"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\gallery\QtQuick.2\*"; DestDir: "{app}\QtQuick.2"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\gallery\styles\*"; DestDir: "{app}\styles"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+
+; if fluid is not linked in
+Source: "..\gallery\Fluid\*"; DestDir: "{app}\Fluid"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

@@ -53,6 +53,9 @@ class QControl : public QObject, public Control
     Q_OBJECT
     Q_PROPERTY(QString directory READ directory WRITE setDirectory NOTIFY directoryChanged);
     Q_PROPERTY(QString startDirectory READ startDirectory);
+    Q_PROPERTY(int orderByCode READ orderByCode WRITE setOrderByCode NOTIFY orderByCodeChanged);
+
+    Q_PROPERTY(int orderByOverride READ orderByOverride);
 
 public:
 
@@ -114,10 +117,6 @@ public:
     QString directory() const { return QSTR(_directory); }
     QString startDirectory() const { return QSTR(_startDirectory); }
 
-    void _updateDirectory()
-    {
-        if (_gModel) _gModel->changed();
-    }
 
     void setDirectory(const QString& dir)
     {
@@ -148,6 +147,27 @@ public:
             {
                 LOG1("Permission denied for ", t);
             }
+        }
+    }
+
+    int orderByOverride() const
+    {
+        // if set by command line options, else -1
+        return _orderByOverride;
+    }
+
+    int orderByCode() const
+    {
+        return (int)_fsFiles._ordering;
+    }
+
+    void setOrderByCode(int c)
+    {
+        if (orderByCode() != c)
+        {
+            _fsFiles._ordering = (FSI::SortOrder)c;
+            _updateDirectory();
+            emit orderByCodeChanged();
         }
     }
 
@@ -242,10 +262,10 @@ public:
             _gThumbProvider->notNeeded(qid);
     }
 
-
 signals:
 
     void directoryChanged();
+    void orderByCodeChanged();  // not currently used
 
 public slots:
 
@@ -259,6 +279,7 @@ public:
 
 
     FSFiles               _fsFiles;
+    int                   _orderByOverride = -1; // from options
 
     // set this in main
     GalleryModel*         _gModel = 0;
@@ -270,6 +291,11 @@ public:
     QFileSystemWatcher    _watcher;
 
 private:
+
+    void _updateDirectory()
+    {
+        if (_gModel) _gModel->changed();
+    }
 
     static QControl*    _theControl;
     QGuiApplication*    _app;

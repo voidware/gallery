@@ -62,6 +62,12 @@ FluidControls.ApplicationWindow
         // command line override
         var v = QControl.startDirectory;
         if (v.length > 0) settings.startfolder = v;
+
+        var oo = QControl.orderByOverride;
+        if (oo >= 0) settings.sortOrder = oo
+        
+        // restore from settings
+        QControl.orderByCode = settings.sortOrder
     }
 
     Binding
@@ -113,7 +119,6 @@ FluidControls.ApplicationWindow
             {
                 it.theimage.grabToImage(function(res) 
                 {
-                    //app.sendEmail(res.image, theitem.label);
                     email.body = it.label
                     if (settings.mailto) email.mailto = settings.mailto
                     if (settings.subject) email.subject = settings.subject
@@ -199,14 +204,6 @@ FluidControls.ApplicationWindow
         interactive: mobileAspect
         position: mobileAspect ? 0.0 : 1.0
         visible: !mobileAspect
-
-        /*
-        Props
-        {
-            id: props
-            anchors.fill: parent
-        }
-        */
     }
 
     Email 
@@ -233,6 +230,14 @@ FluidControls.ApplicationWindow
 
         // files
         property string destdir
+
+        property int sortOrder
+        
+        onSortOrderChanged:
+        {
+            //console.log("sort order changed to", sortOrder)
+            QControl.orderByCode = sortOrder
+        }
 
     }
 

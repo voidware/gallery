@@ -153,9 +153,8 @@ struct FSI
 
     enum SortOrder
     {
-        sort_any,
-        sort_name,
-        sort_date,
+     sort_name = 0,
+     sort_date = 1,
     };
 
     Names                 _names;
